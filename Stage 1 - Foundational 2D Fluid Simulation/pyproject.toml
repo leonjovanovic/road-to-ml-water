@@ -1,0 +1,15 @@
+[project]
+name = "Stage_1"
+version = "0.1.0"
+description = ""
+authors = [""]
+dependencies = [
+    "requests>=2.28,<3.0",
+    "numpy>=1.23",
+    "ipykernel>=6.29.5",
+    "matplotlib>=3.10.3",
+    "ipympl>=0.9.7",
+]
+
+[tool.uv]
+python = "3.10"
