@@ -40,7 +40,7 @@ These are measurable characteristics that define how a *particular* fluid behave
     *   **Why it matters:**
         *   "Heaviness": Lead is denser than wood. Mercury is much denser than water.
         *   **Buoyancy:** Less dense fluids/objects float on denser fluids (e.g., oil on water, a log in water, a hot air balloon in colder air because hot air is less dense).
-        *   For our water simulations, we'll often assume water is **incompressible**, meaning its density `ρ` remains constant. This simplifies the math considerably (as seen in Lesson 1 with `∇ · u = 0`).
+        *   For our water simulations, we'll often assume water is **incompressible**, meaning its density `ρ` remains constant. This simplifies the math considerably (will be discussed in Lesson 1 with `∇ · u = 0`).
     *   **Example:** Water is about 1000 kg/m³. Air is about 1.2 kg/m³.
 
 *   **2. Viscosity (μ - mu for dynamic, ν - nu for kinematic):**
