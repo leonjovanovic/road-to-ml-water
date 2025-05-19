@@ -35,12 +35,13 @@ Before we can simulate something as complex as water movement, we need to agree 
 These are measurable characteristics that define how a *particular* fluid behaves. They are crucial inputs or targets for both classical and ML-based simulations.
 
 *   **1. Density (ρ - rho):**
-    *   **What:** The amount of mass packed into a given unit of volume. `ρ = mass / volume`.
+    *   **What:** The amount of mass packed into a given unit of volume. $\rho = \frac{\text{mass}}{\text{volume}}$.
     *   **Units:** kg/m³ (SI standard), g/cm³.
     *   **Why it matters:**
         *   "Heaviness": Lead is denser than wood. Mercury is much denser than water.
         *   **Buoyancy:** Less dense fluids/objects float on denser fluids (e.g., oil on water, a log in water, a hot air balloon in colder air because hot air is less dense).
-        *   For our water simulations, we'll often assume water is **incompressible**, meaning its density `ρ` remains constant. This simplifies the math considerably (will be discussed in Lesson 1 with `∇ · u = 0`).
+        *   For our water simulations, we'll often assume water is **incompressible**, meaning its density $\rho$ remains constant. This simplifies the math considerably (will be discussed in Lesson 1 with $\nabla \cdot \mathbf{u} = 0$
+).
     *   **Example:** Water is about 1000 kg/m³. Air is about 1.2 kg/m³.
 
 *   **2. Viscosity (μ - mu for dynamic, ν - nu for kinematic):**
@@ -48,7 +49,7 @@ These are measurable characteristics that define how a *particular* fluid behave
         *   **Analogy:** Imagine trying to drag a spoon through honey versus through water. Honey resists much more – it has higher viscosity.
     *   **Dynamic Viscosity (μ):** This is the fundamental property. It directly relates the shear stress in a fluid to how quickly one layer of fluid is sliding past another (the rate of shear strain).
         *   **Units:** Pa·s (Pascal-seconds) or kg/(m·s).
-    *   **Kinematic Viscosity (ν):** Defined as dynamic viscosity divided by density: `ν = μ / ρ`.
+    *   **Kinematic Viscosity (ν):** Defined as dynamic viscosity divided by density: $\nu = \frac{\mu}{\rho}$.
         *   **Units:** m²/s.
         *   **Why two types?** Kinematic viscosity often appears naturally in the Navier-Stokes equations when density is constant. It represents how quickly momentum diffuses through the fluid.
     *   **Why it matters:**
@@ -59,12 +60,14 @@ These are measurable characteristics that define how a *particular* fluid behave
     *   **Example:** Honey has a dynamic viscosity ~10 Pa·s, water ~0.001 Pa·s (at room temp).
 
 *   **3. Pressure (P):**
-    *   **What:** The normal force exerted by a fluid per unit area. It acts equally in all directions at a point within a fluid at rest. `P = Force / Area`.
+    *   **What:** The normal force exerted by a fluid per unit area. It acts equally in all directions at a point within a fluid at rest. 
+    
+        $P = \frac{\text{Force}}{\text{Area}}$.
     *   **Units:** Pascals (Pa = N/m²), atmospheres (atm), psi (pounds per square inch).
     *   **Why it matters:**
         *   **Drives Flow:** Fluids flow from regions of high pressure to regions of low pressure. This pressure difference (gradient) is a key force term in the Navier-Stokes equations. (Squeezing a balloon pushes air out due to increased internal pressure).
-        *   **Hydrostatic Pressure:** In a fluid at rest, pressure increases with depth due to the weight of the fluid above it. This is given by `P_hydrostatic = ρgh` (where `g` is acceleration due to gravity, `h` is depth). This is important for initializing simulations or understanding static water bodies.
-    *   **Example:** Atmospheric pressure at sea level is ~101,325 Pa. The pressure at the bottom of a 10m deep pool due to the water alone is `1000 kg/m³ * 9.8 m/s² * 10 m = 98,000 Pa` (almost another atmosphere).
+        *   **Hydrostatic Pressure:** In a fluid at rest, pressure increases with depth due to the weight of the fluid above it. This is given by $P_{\text{hydrostatic}} = \rho g h$ (where $g$ is acceleration due to gravity, $h$ is depth). This is important for initializing simulations or understanding static water bodies.
+    *   **Example:** Atmospheric pressure at sea level is ~101,325 Pa. The pressure at the bottom of a 10m deep pool due to the water alone is $1000 \ \mathrm{kg/m}^3 \times 9.8 \ \mathrm{m/s}^2 \times 10 \ \mathrm{m} = 98,000 \ \mathrm{Pa}$ (almost another atmosphere).
 
 *   **4. Temperature (T):** (Brief mention, as it's often simplified for basic game water)
     *   **What:** A measure of the average kinetic energy of the molecules.
@@ -92,7 +95,7 @@ These are measurable characteristics that define how a *particular* fluid behave
     *   **What:** The study of fluids **at rest** (no relative motion between fluid layers).
     *   **Key Characteristics:** No shear stresses present. The primary variable of interest is **pressure**.
     *   **Key Principles:**
-        *   Pressure variation with depth (`P = ρgh`).
+        *   Pressure variation with depth ($P = \rho g h$).
         *   Forces on submerged surfaces (e.g., pressure on a dam wall).
         *   **Buoyancy (Archimedes' Principle):** An object submerged in a fluid experiences an upward buoyant force equal to the weight of the fluid it displaces. This is why ships float!
     *   **Relevance to us:** Understanding hydrostatic pressure helps initialize some dynamic simulations or deal with still bodies of water. Buoyancy might be needed if your game has floating objects.

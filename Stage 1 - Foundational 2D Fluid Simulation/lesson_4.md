@@ -27,80 +27,87 @@ While grid-based methods are powerful, they can have challenges with:
 Understanding these components is key to seeing how SPH simulates fluid motion.
 
 *   **1. Particles as Fluid Carriers:**
-    *   Each particle `i` has attributes:
-        *   `m_i`: Mass (usually constant for each particle throughout the simulation).
-        *   `r_i`: Position vector `(x_i, y_i, z_i)`.
-        *   `v_i`: Velocity vector `(vx_i, vy_i, vz_i)`.
-        *   It will also have or acquire values for density `ρ_i`, pressure `P_i`, etc.
+    *   Each particle $i$ has attributes:
+        *   $m_i$: Mass (usually constant for each particle throughout the simulation).
+        *   $r_i$: Position vector $(x_i, y_i, z_i)$.
+        *   $v_i$: Velocity vector $(\mathrm{vx}_i, \mathrm{vy}_i, \mathrm{vz}_i)$.
+        *   It will also have or acquire values for density $\rho_i$, pressure $P_i$, etc.
 
 *   **2. The Smoothing Kernel (W) and Smoothing Length (h):**
-    *   **Smoothing Kernel `W(r, h)`:** A function that defines the "zone of influence" of a particle.
-        *   `r`: The distance between the particle and the point of interest.
-        *   `h`: The **smoothing length** (also called kernel radius or support radius). This is a crucial parameter that defines how far a particle's influence extends.
+    *   **Smoothing Kernel $W(r, h)$:** A function that defines the "zone of influence" of a particle.
+        *   $r$: The distance between the particle and the point of interest.
+        *   $h$: The **smoothing length** (also called kernel radius or support radius). This is a crucial parameter that defines how far a particle's influence extends.
         *   **Properties of W:**
-            *   It's usually bell-shaped or similarly peaked: highest at `r=0` (at the particle itself).
-            *   It smoothly decreases to zero at `r=h`. Particles further than `h` have no influence.
+            *   It's usually bell-shaped or similarly peaked: highest at $r=0$ (at the particle itself).
+            *   It smoothly decreases to zero at $r=h$. Particles further than $h$ have no influence.
             *   It's normalized (its integral over its support domain is 1), so it properly averages quantities.
-        *   **Common Kernels:** Different mathematical forms are used for `W` depending on what's being calculated (e.g., Poly6 kernel for density, Spiky kernel for pressure gradients, Viscosity kernel for viscosity). You don't need to memorize their exact formulas, but know they exist and are chosen for specific properties.
+        *   **Common Kernels:** Different mathematical forms are used for $W$ depending on what's being calculated (e.g., Poly6 kernel for density, Spiky kernel for pressure gradients, Viscosity kernel for viscosity). You don't need to memorize their exact formulas, but know they exist and are chosen for specific properties.
 
-    *   **Smoothing Length `h`:**
-        *   **Too small `h`:** Particles interact only with very close neighbors. Can lead to clumpy, unstable simulations if particles don't "see" enough neighbors.
-        *   **Too large `h`:** Details are overly smoothed. Each particle interacts with many others, increasing computational cost per step.
-        *   Typically, `h` is set to be a small multiple of the initial average particle spacing.
+    *   **Smoothing Length $h$:**
+        *   **Too small $h$:** Particles interact only with very close neighbors. Can lead to clumpy, unstable simulations if particles don't "see" enough neighbors.
+        *   **Too large $h$:** Details are overly smoothed. Each particle interacts with many others, increasing computational cost per step.
+        *   Typically, $h$ is set to be a small multiple of the initial average particle spacing.
 
 *   **3. Density Estimation (The Starting Point for SPH Calculations):**
-    *   The density `ρ_i` at the location of particle `i` is estimated by summing the mass contributions of all neighboring particles `j` (including `i` itself), weighted by the kernel:
-        `ρ_i = Σ_j m_j * W(|r_i - r_j|, h)`
-        *   `|r_i - r_j|` is the distance between particle `i` and particle `j`.
-        *   The sum is over all particles `j` within the smoothing length `h` of particle `i`.
-    *   **Intuition:** If many particles are packed closely around particle `i`, `ρ_i` will be high. If they are sparse, `ρ_i` will be low.
+    *   The density $\rho_i$ at the location of particle $i$ is estimated by summing the mass contributions of all neighboring particles $j$ (including $i$ itself), weighted by the kernel:
+        $\rho_i = \sum_j m_j \cdot W(|\mathbf{r}_i - \mathbf{r}_j|, h)$
+
+        *   $|\mathbf{r}_i - \mathbf{r}_j|$
+ is the distance between particle $i$ and particle $j$.
+        *   The sum is over all particles $j$ within the smoothing length $h$ of particle $i$.
+    *   **Intuition:** If many particles are packed closely around particle $i$,  $\rho_i$ will be high. If they are sparse, $\rho_i$ will be low.
 
 *   **4. Equation of State (Pressure from Density):**
-    *   Once density `ρ_i` is known for each particle, pressure `P_i` is typically calculated using an **equation of state (EOS)**. This is a thermodynamic relation that links pressure, density, and sometimes temperature.
+    *   Once density $\rho_i$ is known for each particle, pressure $P_i$ is typically calculated using an **equation of state (EOS)**. This is a thermodynamic relation that links pressure, density, and sometimes temperature.
     *   For simulating water-like fluids (which are nearly incompressible), a common EOS is **Tait's equation (or a similar stiff EOS):**
-        `P_i = k * [ (ρ_i / ρ_0)^γ - 1 ]`
+    
+        $P_i = k \cdot \left[ \left( \frac{\rho_i}{\rho_0} \right)^\gamma - 1 \right]$
+
         Where:
-        *   `ρ_0`: The **rest density** of the fluid (the target density it "wants" to be).
-        *   `k`: A **stiffness parameter** (sometimes related to a "speed of sound" in the SPH fluid). Higher `k` makes the fluid more resistant to compression (more incompressible). Too high `k` might require very small time steps for stability.
-        *   `γ` (gamma): An exponent, often 7 for water-like simulations.
-    *   **Intuition:** If `ρ_i > ρ_0` (particle `i` is in a compressed region), then `P_i` becomes positive and large, indicating it wants to expand. If `ρ_i < ρ_0` (dilute region), `P_i` can be negative (tensile, though often clamped at zero for simple fluids).
+        *   $ρ_0$: The **rest density** of the fluid (the target density it "wants" to be).
+        *   $k$: A **stiffness parameter** (sometimes related to a "speed of sound" in the SPH fluid). Higher $k$ makes the fluid more resistant to compression (more incompressible). Too high $k$ might require very small time steps for stability.
+        *   $γ$ (gamma): An exponent, often 7 for water-like simulations.
+    *   **Intuition:** If $ρ_i > ρ_0$ (particle $i$ is in a compressed region), then $P_i$ becomes positive and large, indicating it wants to expand. If $ρ_i < ρ_0$ (dilute region), $P_i$ can be negative (tensile, though often clamped at zero for simple fluids).
 
 *   **5. Calculating Forces for Motion:**
     The heart of SPH is calculating the forces that make particles move. The Navier-Stokes equations are approximated in SPH form. The main forces are:
 
     *   **a. Pressure Force:**
         *   **Goal:** To make particles move from high-pressure regions to low-pressure regions, effectively trying to make the density uniform (simulating incompressibility).
-        *   **How (Conceptual):** The SPH formulation for the pressure gradient term `(-∇P)` in Navier-Stokes involves summing contributions from neighboring particles. A common symmetric form for the pressure force on particle `i` from particle `j` is:
-            `F_ij^{pressure} = - m_i * m_j * ( P_i/ρ_i² + P_j/ρ_j² ) * ∇W_ij`
-            Where `∇W_ij` is the gradient of the smoothing kernel `W(|r_i - r_j|, h)` with respect to `r_i`. This gradient vector points from `j` to `i` and its magnitude depends on how rapidly the kernel changes with distance.
-        *   The total pressure force on `i` is `Σ_j F_ij^{pressure}`.
-        *   **Intuition:** If particle `j` is in a higher pressure state relative to its distance from `i` (as captured by the pressures and kernel gradient), it will exert a repulsive force on `i`.
+        *   **How (Conceptual):** The SPH formulation for the pressure gradient term $(-\nabla P)$ in Navier-Stokes involves summing contributions from neighboring particles. A common symmetric form for the pressure force on particle $i$ from particle $j$ is:
+            $F_{ij}^{\text{pressure}} = - m_i \cdot m_j \cdot \left( \frac{P_i}{\rho_i^2} + \frac{P_j}{\rho_j^2} \right) \cdot \nabla W_{ij}$
+
+            Where $\nabla W_{ij}$ is the gradient of the smoothing kernel $W\big(|\mathbf{r}_i - \mathbf{r}_j|, h\big)$ with respect to $r_i$. This gradient vector points from $j$ to $i$ and its magnitude depends on how rapidly the kernel changes with distance.
+        *   The total pressure force on $i$ is $\sum_j F_{ij}^{\text{pressure}}$.
+        *   **Intuition:** If particle $j$ is in a higher pressure state relative to its distance from $i$ (as captured by the pressures and kernel gradient), it will exert a repulsive force on $i$.
 
     *   **b. Viscosity Force:**
-        *   **Goal:** To simulate the internal friction (viscosity `μ`) of the fluid. This should damp relative motion between particles and smooth out velocity differences.
-        *   **How (Conceptual):** The SPH form for the viscous term `(μ∇²u)` in Navier-Stokes also involves summing contributions from neighbors. A common form for the viscosity force on particle `i` from particle `j` is:
-            `F_ij^{viscosity} = μ * m_i * m_j * ( (v_j - v_i) / ρ_i ρ_j ) * ( (r_i - r_j) · ∇W_ij ) / ( |r_i - r_j|² + ε )` (This is one form; others exist, sometimes simpler, involving the Laplacian of the kernel or direct velocity differences). More simply, often expressed as:
-            `F_ij^{viscosity} = Σ_j m_j * (v_j - v_i) / ρ_j * μ * K_visc * ∇²W_ij` where `K_visc` depends on `h`.
-        *   Essentially, if particle `j` is moving significantly differently from `i`, a force is generated that tries to reduce this velocity difference.
-        *   The total viscosity force on `i` is `Σ_j F_ij^{viscosity}`.
+        *   **Goal:** To simulate the internal friction (viscosity $μ$) of the fluid. This should damp relative motion between particles and smooth out velocity differences.
+        *   **How (Conceptual):** The SPH form for the viscous term $(\mu \nabla^2 \mathbf{u})$ in Navier-Stokes also involves summing contributions from neighbors. A common form for the viscosity force on particle $i$ from particle $j$ is:
+            $F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \rho_j} \right) \cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot \nabla W_{ij}}{|\mathbf{r}_i - \mathbf{r}_j|^2 + \varepsilon}$
+
+            (This is one form; others exist, sometimes simpler, involving the Laplacian of the kernel or direct velocity differences). More simply, often expressed as:
+            $F_{ij}^{\text{viscosity}} = \sum_j m_j \cdot \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_j} \cdot \mu \cdot K_{\text{visc}} \cdot \nabla^2 W_{ij}$ where $K_{\text{visc}}$ depends on $h$.
+        *   Essentially, if particle $j$ is moving significantly differently from $i$, a force is generated that tries to reduce this velocity difference.
+        *   The total viscosity force on $i$ is $\sum_j F_{ij}^{\text{viscosity}}$.
 
     *   **c. External Forces:**
-        *   **Gravity:** `F_i^{gravity} = m_i * g` (where `g` is the gravitational acceleration vector, e.g., `(0, -9.81, 0) m/s²`). This is added to each particle.
+        *   **Gravity:** $F_i^{\text{gravity}} = m_i \cdot \mathbf{g}$ (where $g$ is the gravitational acceleration vector, e.g., $(0, -9.81, 0) \ \text{m/s}^2$). This is added to each particle.
         *   **Boundary Forces:** Handling interactions with solid boundaries (like container walls) is a critical aspect. Common methods:
             *   **Repulsive Force Particles:** Place fixed SPH particles at the boundary that exert strong short-range repulsion forces on fluid particles that get too close.
             *   **Ghost Particles:** Create mirror "ghost" particles inside the boundary to enforce conditions like no-slip.
 
 *   **6. Time Integration – Advancing the Simulation:**
-    1.  For each particle `i`, sum all forces: `F_i^{total} = F_i^{pressure} + F_i^{viscosity} + F_i^{gravity} + F_i^{boundary} + ...`
-    2.  Calculate acceleration using Newton's second law: `a_i = F_i^{total} / m_i`.
-    3.  Update particle velocities and positions over a small time step `Δt`. Common integration schemes:
+    1.  For each particle $i$, sum all forces: $F_i^{\text{total}} = F_i^{\text{pressure}} + F_i^{\text{viscosity}} + F_i^{\text{gravity}} + F_i^{\text{boundary}} + \ldots$
+    2.  Calculate acceleration using Newton's second law: $a_i = \frac{F_i^{\text{total}}}{m_i}$.
+    3.  Update particle velocities and positions over a small time step $\Delta t$. Common integration schemes:
         *   **Leapfrog Integration (often preferred for SPH):** Staggered time updates for position and velocity. Good for energy conservation.
-            `v_i(t + Δt/2) = v_i(t - Δt/2) + a_i(t) * Δt`
-            `r_i(t + Δt) = r_i(t) + v_i(t + Δt/2) * Δt`
+            $v_i\left(t + \frac{\Delta t}{2}\right) = v_i\left(t - \frac{\Delta t}{2}\right) + a_i(t) \cdot \Delta t$
+            $r_i(t + \Delta t) = r_i(t) + v_i\left(t + \frac{\Delta t}{2}\right) \cdot \Delta t$
         *   **Euler Integration (simpler, but less stable/accurate):**
-            `v_i(t + Δt) = v_i(t) + a_i(t) * Δt`
-            `r_i(t + Δt) = r_i(t) + v_i(t) * Δt` (Explicit Euler)
-            or `r_i(t + Δt) = r_i(t) + v_i(t + Δt) * Δt` (Semi-Implicit Euler, often better)
+            $v_i(t + \Delta t) = v_i(t) + a_i(t) \cdot \Delta t$
+            $r_i(t + \Delta t) = r_i(t) + v_i(t) \cdot \Delta t$ (Explicit Euler)
+            or $r_i(t + \Delta t) = r_i(t) + v_i(t + \Delta t) \cdot \Delta t$ (Semi-Implicit Euler, often better)
 
     This entire cycle (neighbor search, density, pressure, forces, integration) is repeated for every time step.
 
@@ -128,10 +135,10 @@ Understanding these components is key to seeing how SPH simulates fluid motion.
 *   **3. Experimenting and Observing – Focus On:**
     *   **Input Parameters (How to change them in the code/config):**
         *   **Particle Count / Initial Spacing:** How does increasing particle number affect visual detail and simulation speed?
-        *   **Stiffness (`k` in Tait's EOS) / Target Sound Speed:** How does it affect the "bounciness" or compressibility? Too low might make it act like jelly; too high might need tiny `Δt`.
-        *   **Viscosity Coefficient (`μ`):** Compare low viscosity (water-like, splashy) vs. high viscosity (honey-like, slow, damped).
-        *   **Timestep (`Δt`):** Crucial for stability (CFL-like conditions apply to SPH too!). If you make `Δt` too large, the simulation will likely "explode" (particles fly off to infinity).
-        *   **Smoothing Length (`h`):** Often tied to particle spacing (e.g., `h = 1.2 * initial_particle_spacing`). Understand its role in interaction range.
+        *   **Stiffness ($k$ in Tait's EOS) / Target Sound Speed:** How does it affect the "bounciness" or compressibility? Too low might make it act like jelly; too high might need tiny $\Delta t$.
+        *   **Viscosity Coefficient ($μ$):** Compare low viscosity (water-like, splashy) vs. high viscosity (honey-like, slow, damped).
+        *   **Timestep ($\Delta t$):** Crucial for stability (CFL-like conditions apply to SPH too!). If you make $\Delta t$ too large, the simulation will likely "explode" (particles fly off to infinity).
+        *   **Smoothing Length ($h$):** Often tied to particle spacing (e.g., `h = 1.2 * initial_particle_spacing`). Understand its role in interaction range.
     *   **Particle Behavior:** Watch how particles interact, form surfaces, respond to forces.
     *   **Data Extraction (THE MOST IMPORTANT PART FOR ML):**
         *   Your simulator *must* allow you to save the state of the particles over time.

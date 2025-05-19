@@ -48,13 +48,13 @@ Not all fluid flow is created equal. Observing a gently flowing river versus rag
 
 *   **3. The Reynolds Number (Re) – A Guiding Light:**
     *   **What it is:** A dimensionless number that helps predict the flow regime. It represents the ratio of inertial forces to viscous forces.
-        `Re = (ρ * U * L) / μ = (U * L) / ν`
+        $Re = \frac{\rho U L}{\mu} = \frac{U L}{\nu}$
         Where:
-        *   `ρ` = fluid density
-        *   `U` = characteristic velocity of the flow (e.g., average speed in a pipe)
-        *   `L` = characteristic length scale (e.g., pipe diameter, length of an object)
-        *   `μ` = dynamic viscosity
-        *   `ν` = kinematic viscosity (`μ/ρ`)
+        *   $\rho$ = fluid density
+        *   $U$ = characteristic velocity of the flow (e.g., average speed in a pipe)
+        *   $L$ = characteristic length scale (e.g., pipe diameter, length of an object)
+        *   $\mu$ = dynamic viscosity
+        *   $\nu$ = kinematic viscosity ($\frac{\mu}{\rho}$)
     *   **Interpretation:**
         *   **Low Re (e.g., < ~2000 for pipe flow):** Viscous forces dominate. Flow is likely **laminar**.
         *   **High Re (e.g., > ~4000 for pipe flow):** Inertial forces dominate. Flow is likely **turbulent**.
@@ -67,8 +67,8 @@ Not all fluid flow is created equal. Observing a gently flowing river versus rag
 
 *   **1. Reynolds Number Estimation (Conceptual):**
     *   **Scenario:** Consider pouring honey slowly from a jar versus water rushing from a firehose.
-    *   **Honey:** High viscosity (`μ`), low velocity (`U`). Leads to a **low Reynolds number** -> Laminar flow. You see smooth, rope-like strands.
-    *   **Firehose Water:** Low viscosity (`μ`), very high velocity (`U`). Leads to a **very high Reynolds number** -> Turbulent flow. You see a chaotic, spraying jet.
+    *   **Honey:** High viscosity ($\mu$), low velocity ($U$). Leads to a **low Reynolds number** -> Laminar flow. You see smooth, rope-like strands.
+    *   **Firehose Water:** Low viscosity ($\mu$), very high velocity ($U$). Leads to a **very high Reynolds number** -> Turbulent flow. You see a chaotic, spraying jet.
 
 *   **2. Everyday Laminar/Turbulent Identification:**
     *   **Observe a candle flame:** The hot air and combustion products initially rise in a smooth, laminar plume. As they cool and mix with the surrounding air, instabilities grow, and the plume becomes turbulent, with visible eddies and flickering.
@@ -97,7 +97,7 @@ For ML, even if the model doesn't explicitly "know" about BCs in a mathematical 
 
     *   **a. No-Slip Condition (for Viscous Fluids at Solid Walls):**
         *   **The Rule:** A viscous fluid "sticks" to a solid surface. This means the layer of fluid immediately in contact with the wall has the **exact same velocity as the wall**.
-        *   **If the wall is stationary:** Fluid velocity at the wall is zero (`u=0, v=0, w=0`).
+        *   **If the wall is stationary:** Fluid velocity at the wall is zero ($u=0, \quad v=0, \quad w=0$).
         *   **If the wall is moving (e.g., a spinning shaft):** Fluid velocity at the wall matches the wall's velocity.
         *   **Why it happens:** Due to intermolecular attractive forces between the fluid molecules and the molecules of the solid wall.
         *   **Impact:** This is a very important BC. It creates a **boundary layer** – a region near the wall where the fluid velocity changes rapidly from zero (at the wall) to the free-stream velocity further away. This gradient is where viscous forces are most significant.
@@ -110,7 +110,7 @@ For ML, even if the model doesn't explicitly "know" about BCs in a mathematical 
             *   *Specify Pressure:* Sometimes, pressure is specified at an inlet, and the solver figures out the velocity.
         *   **Outlet Conditions:**
             *   *Specify Pressure:* Often, the pressure at an outlet open to the atmosphere is set to atmospheric pressure.
-            *   *Zero Gradient / Fully Developed Flow:* Assume that the flow profile doesn't change much as it exits (e.g., `∂u/∂x = 0` if x is the flow direction).
+            *   *Zero Gradient / Fully Developed Flow:* Assume that the flow profile doesn't change much as it exits (e.g., $\frac{\partial u}{\partial x} = 0$ if x is the flow direction).
         *   **Impact:** Drastically affect the overall flow pattern within your domain.
         *   **ML Relevance:** The types of inlets/outlets used to generate training data will heavily influence what flow scenarios your ML model can successfully reproduce.
 

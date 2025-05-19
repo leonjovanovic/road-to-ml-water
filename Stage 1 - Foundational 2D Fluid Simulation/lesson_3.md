@@ -14,20 +14,20 @@ Since computers work with numbers and finite operations, not continuous function
 
 *   **1. Spatial Discretization – Chopping up Space:**
     *   The continuous physical space where the fluid flows (the **domain**) is divided into a large number of small, discrete volumes or cells. This collection of cells is called a **grid** or **mesh**.
-    *   Instead of trying to find the fluid velocity `u(x,y,z)` at *every single point* in space (infinitely many!), we now aim to find the velocity at specific points (e.g., the center of each cell, or the corners/nodes of the cells).
+    *   Instead of trying to find the fluid velocity $u(x,y,z)$ at *every single point* in space (infinitely many!), we now aim to find the velocity at specific points (e.g., the center of each cell, or the corners/nodes of the cells).
     *   **Types of Grids:**
         *   **Structured Grids:** Cells are arranged in a regular, repeating pattern (like a checkerboard in 2D, or stacked cubes in 3D). Simpler to work with mathematically.
         *   **Unstructured Grids:** Cells can be of various shapes (triangles, quadrilaterals in 2D; tetrahedra, hexahedra in 3D) and arranged irregularly. Much more flexible for representing complex geometries (like an airplane wing or a car body).
 
 *   **2. Temporal Discretization – Stepping Through Time:**
-    *   Fluid flow evolves over time. Similar to space, time is also discretized into small, distinct **time steps** (denoted as `Δt`).
-    *   The simulation calculates the state of the fluid (velocities, pressures in all cells) at `t_0`, then advances to `t_0 + Δt`, then `t_0 + 2Δt`, and so on.
+    *   Fluid flow evolves over time. Similar to space, time is also discretized into small, distinct **time steps** (denoted as $\Delta t$).
+    *   The simulation calculates the state of the fluid (velocities, pressures in all cells) at $t_0$, then advances to $t_0 + \Delta t$, then $t_0 + 2 \Delta t$, and so on.
 
 *   **3. Discretizing the Equations:**
     *   Once space and time are discretized, the continuous governing equations (Navier-Stokes, continuity) must also be transformed.
-    *   Calculus terms like derivatives (e.g., `∂u/∂x`, representing how velocity changes with position) and integrals are replaced by algebraic approximations that use the values at neighboring grid points or cells.
+    *   Calculus terms like derivatives (e.g., $\frac{\partial u}{\partial x}$, representing how velocity changes with position) and integrals are replaced by algebraic approximations that use the values at neighboring grid points or cells.
     *   **Example (Conceptual Finite Difference for a derivative):**
-        If `u_i` is the velocity at grid point `i` and `u_{i+1}` is at the next grid point `i+1` (separated by distance `Δx`), then the derivative `∂u/∂x` at or between these points can be approximated as `(u_{i+1} - u_i) / Δx`.
+        If $u_i$ is the velocity at grid point $i$ and $u_{i+1}$ is at the next grid point $i+1$ (separated by distance $\Delta x$), then the derivative $\frac{\partial u}{\partial x}$ at or between these points can be approximated as $\frac{u_{i+1} - u_i}{\Delta x}$.
     *   This process converts the system of partial differential equations into a large system of coupled algebraic equations (often non-linear).
 
 ---
@@ -42,25 +42,25 @@ When we discretize, we introduce approximations. Two critical questions arise:
     *   **What it is:** A numerical method is **stable** if errors introduced at one stage of the calculation (due to approximation or even tiny computer rounding errors) do not grow and amplify as the simulation progresses through many time steps.
     *   **Unstable Behavior:** An unstable simulation will produce nonsensical results – velocities might become astronomically large, pressures might oscillate wildly, or the whole thing might just "crash."
     *   **The CFL Condition (Courant-Friedrichs-Lewy):** This is a famous stability condition, particularly for **explicit** time-stepping methods (where the new state is calculated directly from the current state).
-        *   **Concept:** Information (like a pressure wave or the fluid itself) should not travel more than one grid cell distance (`Δx`) in a single time step (`Δt`).
-        *   Mathematically (simplified 1D): `C = (U * Δt) / Δx ≤ C_max`
-            *   `U`: Fluid velocity (or relevant wave speed).
-            *   `Δt`: Time step size.
-            *   `Δx`: Grid cell size.
-            *   `C_max`: A constant, often around 1 for simple explicit schemes.
-        *   **Implication:** If your velocity `U` is high or your grid cells `Δx` are small (for high resolution), you *must* use a very small time step `Δt` to maintain stability. This can make explicit methods slow.
-        *   **Implicit Methods:** An alternative where the new state depends on both current and *other new (unknown)* states, leading to a system of equations to be solved at each time step. Often more complex per step but can allow much larger `Δt` values, making them more efficient for certain problems.
-    *   **ML Relevance:** When your GNN predicts accelerations, and you use an explicit integrator (like Euler) to update velocities and positions over time in a "rollout," if the `Δt` used for this rollout is too large relative to the dynamics the GNN has learned (or the inherent speeds in the system), the rollout can become unstable, just like a classical explicit CFD simulation.
+        *   **Concept:** Information (like a pressure wave or the fluid itself) should not travel more than one grid cell distance ($\Delta x$) in a single time step ($\Delta t$).
+        *   Mathematically (simplified 1D): $C = \frac{U \cdot \Delta t}{\Delta x} \leq C_{\max}$
+            *   $U$: Fluid velocity (or relevant wave speed).
+            *   $\Delta t$: Time step size.
+            *   $\Delta x$: Grid cell size.
+            *   $C_{\max}$: A constant, often around 1 for simple explicit schemes.
+        *   **Implication:** If your velocity $U$ is high or your grid cells $\Delta x$ are small (for high resolution), you *must* use a very small time step $\Delta t$ to maintain stability. This can make explicit methods slow.
+        *   **Implicit Methods:** An alternative where the new state depends on both current and *other new (unknown)* states, leading to a system of equations to be solved at each time step. Often more complex per step but can allow much larger $\Delta t$ values, making them more efficient for certain problems.
+    *   **ML Relevance:** When your GNN predicts accelerations, and you use an explicit integrator (like Euler) to update velocities and positions over time in a "rollout," if the $\Delta t$ used for this rollout is too large relative to the dynamics the GNN has learned (or the inherent speeds in the system), the rollout can become unstable, just like a classical explicit CFD simulation.
 
 *   **2. Convergence – Getting Closer to Reality:**
-    *   **What it is:** A numerical method is **convergent** if its solution approaches the true, exact solution of the original continuous differential equations as the discretization is refined (i.e., as `Δx → 0` and `Δt → 0`).
+    *   **What it is:** A numerical method is **convergent** if its solution approaches the true, exact solution of the original continuous differential equations as the discretization is refined (i.e., as $\Delta x \to 0$ and $\Delta t \to 0$).
     *   **Why it matters:** We want to be confident that our simulation is actually giving us a physically meaningful answer, not just some numbers.
     *   **How it's assessed (conceptually):** One common way is to perform a **grid refinement study**. You run the simulation with a coarse grid, then a finer grid, then an even finer grid. If the key results (e.g., drag force, pressure drop) stop changing significantly as the grid gets finer, it suggests the solution is converging.
     *   **The Trade-off:**
         *   Finer grids and smaller time steps generally lead to more accurate (better converged) solutions.
         *   BUT, they drastically increase computational cost:
-            *   Halving `Δx` in 3D increases the number of cells by 8 times (2³).
-            *   If `Δt` also needs to be halved for stability (due to smaller `Δx`), the total work might increase by 16 times or more.
+            *   Halving $\Delta x$ in 3D increases the number of cells by 8 times (2³).
+            *   If $\Delta t$ also needs to be halved for stability (due to smaller $\Delta x$), the total work might increase by 16 times or more.
         *   This is why high-fidelity CFD is so computationally expensive and why there's interest in ML surrogates that can learn to approximate these solutions much faster once trained.
 
 ---
@@ -71,7 +71,7 @@ These are different strategies for discretizing and solving the governing equati
 
 *   **a. Finite Difference Method (FDM):**
     *   **Main Idea:** Directly approximates derivatives in the differential equations using values at discrete grid points.
-    *   **Example (as above):** `∂u/∂x ≈ (u_{i+1} - u_i) / Δx`.
+    *   **Example (as above):** $\frac{\partial u}{\partial x} \approx \frac{u_{i+1} - u_i}{\Delta x}$.
     *   **Best suited for:** Problems with simple geometries where structured grids can be easily used.
     *   **Pros:** Conceptually simpler.
     *   **Cons:** Can be difficult to apply accurately to complex, irregular shapes.

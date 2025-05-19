@@ -39,16 +39,16 @@ If we want to simulate these fluids – make a computer predict their behavior �
 *   **The Mathematical Implication (Continuity Equation for Incompressible Flow):**
     If the density is constant, it means that fluid cannot "pile up" or "thin out" anywhere. The amount of fluid flowing into any tiny imaginary box within the fluid must equal the amount flowing out. This idea is captured by the **continuity equation**.
     For an incompressible fluid, this simplifies to:
-    `∇ · u = 0` (pronounced "nabla dot u equals zero" or "divergence of u equals zero")
+    $\nabla \cdot \mathbf{u} = 0$ (pronounced "nabla dot u equals zero" or "divergence of u equals zero")
 
-    *   `u`: This represents the **velocity vector** of the fluid. Since we're in 2D (as per your course title), `u` would have two components, say `(u_x, u_y)`, representing the speed in the x-direction and y-direction at any point.
-    *   `∇ ·` (Nabla dot): This is the **divergence operator**. It measures how much a vector field (like our velocity field) is "spreading out" or "sourcing" from a point.
+    *   $u$: This represents the **velocity vector** of the fluid. Since we're in 2D (as per your course title), $u$ would have two components, say $(u_x, u_y)$, representing the speed in the x-direction and y-direction at any point.
+    *   $\nabla \cdot $ (Nabla dot): This is the **divergence operator**. It measures how much a vector field (like our velocity field) is "spreading out" or "sourcing" from a point.
         *   Imagine water flowing out from a sprinkler head – that's positive divergence.
         *   Imagine water flowing down a drain – that's negative divergence (a "sink").
-    *   `∇ · u = 0` means there are no sources or sinks within the fluid. The flow is just moving around, not being created or destroyed, and not compressing or expanding.
+    *   $\nabla \cdot \mathbf{u} = 0$ means there are no sources or sinks within the fluid. The flow is just moving around, not being created or destroyed, and not compressing or expanding.
 
-    **Real-life example for `∇ · u = 0`:**
-    Think of a garden hose. If you partially cover the nozzle with your thumb, the opening gets smaller. For the same amount of water to come out (it can't compress inside the hose), the water must speed up. The total *volume* of water passing through any cross-section of the hose per second remains the same (if incompressible). `∇ · u = 0` ensures this kind of mass balance.
+    **Real-life example for $\nabla \cdot \mathbf{u} = 0$:**
+    Think of a garden hose. If you partially cover the nozzle with your thumb, the opening gets smaller. For the same amount of water to come out (it can't compress inside the hose), the water must speed up. The total *volume* of water passing through any cross-section of the hose per second remains the same (if incompressible). $\nabla \cdot \mathbf{u} = 0$ ensures this kind of mass balance.
 
 ---
 
@@ -73,7 +73,7 @@ These are a set of equations that describe the motion of viscous (sticky, like h
     *   How momentum is carried along by the fluid flow itself (convective acceleration – think of how a fast-moving river carries a leaf along).
 
 *   **The Equations (Simplified Idea for 2D Incompressible Flow):**
-    We typically have one equation for each direction of motion. For 2D, this means one for the x-velocity (let's call it `u_x` or just `u`) and one for the y-velocity (`u_y` or just `v`).
+    We typically have one equation for each direction of motion. For 2D, this means one for the x-velocity (let's call it $u_x$ or just $u$) and one for the y-velocity ($u_y$ or just $v$).
 
     A very conceptual form for the x-momentum equation might look like:
     `Change in u-velocity = - (Pressure change in x-dir) + (Viscous effects on u) + (External forces in x-dir)`
@@ -83,7 +83,7 @@ These are a set of equations that describe the motion of viscous (sticky, like h
 
     **Don't worry about the exact mathematical symbols yet.** The key is to understand that these equations balance acceleration with forces due to pressure differences, internal friction (viscosity), and external influences like gravity.
 
-    Combined with the continuity equation (`∇ · u = 0`) for incompressible flow, these equations form a complete system to describe the fluid's velocity and pressure fields.
+    Combined with the continuity equation ($\nabla \cdot \mathbf{u} = 0$) for incompressible flow, these equations form a complete system to describe the fluid's velocity and pressure fields.
 
 *   **Real-life example of Navier-Stokes in action:**
     When you see smoke curling upwards from a candle:
@@ -95,7 +95,7 @@ These are a set of equations that describe the motion of viscous (sticky, like h
 
 **Outcome Check for this Part:**
 You should now have a basic understanding that:
-*   "Incompressible" means density is constant, simplifying to `∇ · u = 0` (no net flow into or out of any point).
+*   "Incompressible" means density is constant, simplifying to $\nabla \cdot \mathbf{u} = 0$ (no net flow into or out of any point).
 *   The Navier-Stokes equations are like F=ma for fluids, relating fluid acceleration to pressure forces, viscous (friction) forces, and external forces (like gravity).
 *   Together, these equations govern how common fluids like water move.
 
@@ -200,7 +200,7 @@ The key assumption is that the **horizontal scale of motion is much larger than 
 
 **Consequences of this assumption:**
 *   **Vertical velocity is negligible:** The water mainly moves horizontally. Any vertical motion is small and quick compared to the horizontal flow.
-*   **Pressure is hydrostatic:** This is a big one! It means the pressure at any point in the fluid only depends on the depth of the water above it (and atmospheric pressure). `Pressure = ρ * g * h` (density * gravity * depth below surface). This simplifies the pressure term in the momentum equations significantly.
+*   **Pressure is hydrostatic:** This is a big one! It means the pressure at any point in the fluid only depends on the depth of the water above it (and atmospheric pressure). $Pressure = \rho \cdot g \cdot h$ (density * gravity * depth below surface). This simplifies the pressure term in the momentum equations significantly.
 *   **Horizontal velocity is nearly uniform with depth:** The speed of the water doesn't change much as you go from the surface to the bottom. We can just talk about *the* horizontal velocity at a given (x,y) location.
 
 ---
@@ -210,22 +210,25 @@ The key assumption is that the **horizontal scale of motion is much larger than 
 The SWEs are derived from the principles of conservation of mass and conservation of momentum, but with the shallow water assumptions applied. For 2D flow (movement in x and y directions), they typically consist of:
 
 *   **A. Conservation of Mass (or Height Equation):**
-    *   **Problem it solves:** How does the water height `h` change over time?
-    *   **How it solves it:** If more water flows into a region than out, the height `h` in that region must increase. If more flows out than in, `h` must decrease.
+    *   **Problem it solves:** How does the water height $h$ change over time?
+    *   **How it solves it:** If more water flows into a region than out, the height $h$ in that region must increase. If more flows out than in, $h$ must decrease.
     *   **Conceptually (1D for simplicity, just x-direction):**
-        `Change in height over time = - (Change in (height * x-velocity) over x-distance)`
-        This equation essentially says that the rate at which the water level `h` changes at a point is due to the net flow of water `(h*u)` into or out of that point.
+        $\frac{\partial h}{\partial t} = - \frac{\partial (h u)}{\partial x}$
+        
+        `Change in height over time = - (Change in (height * x-velocity) over x-distance)`.
+        This equation essentially says that the rate at which the water level $h$ changes at a point is due to the net flow of water `(h*u)` into or out of that point.
 
 *   **B. Conservation of Momentum (Velocity Equations):**
-    *   **Problem it solves:** How do the horizontal velocities (let's say `u` in x-direction, `v` in y-direction) change over time?
+    *   **Problem it solves:** How do the horizontal velocities (let's say $u$ in x-direction, $v$ in y-direction) change over time?
     *   **How it solves it:** Fluid accelerates (velocity changes) due to:
         1.  **Pressure Gradients (which are now just Slopes in Water Height):** If the water surface is sloped, gravity effectively pulls water downhill. A steeper slope means faster acceleration.
         2.  **Convection:** The fluid carries its own momentum. If faster-moving water flows into a region, it can speed up the water already there.
         3.  **Bottom Friction (Optional):** Drag from the channel bed can slow the flow.
         4.  **Coriolis Force (Optional, for large-scale geophysical flows like oceans/atmosphere):** Due to Earth's rotation.
     *   **Conceptually (1D x-momentum for simplicity, ignoring friction/Coriolis):**
-        `Change in u-velocity over time + u * (Change in u-velocity over x-distance) = - g * (Change in height over x-distance)`
-        This says that the acceleration of the fluid (`Change in u-velocity over time` and the convective part) is driven by gravity acting on the slope of the water surface (`-g * Change in height over x-distance`).
+        $\frac{\partial u}{\partial t} + u \frac{\partial u}{\partial x} = -g \frac{\partial h}{\partial x}$
+
+        This says that the acceleration of the fluid ($\frac{\partial u}{\partial t}$ and the convective part) is driven by gravity acting on the slope of the water surface ($-g \frac{\partial h}{\partial x}$).
 
 ---
 
@@ -242,12 +245,12 @@ This is a classic application of the 1D Shallow Water Equations.
 
 *   **How to code it (very high level):**
     1.  **Discretize:** Divide your 1D channel into a series of cells.
-    2.  **Initialize:** Set the initial height `h` and velocity `u` (usually 0) in each cell based on the dam problem (e.g., `h_left` for cells left of the dam, `h_right` for cells right of the dam).
+    2.  **Initialize:** Set the initial height $h$ and velocity $u$ (usually 0) in each cell based on the dam problem (e.g., $h_{\text{left}}$ for cells left of the dam, $h_{\text{right}}$ for cells right of the dam).
     3.  **Time Loop:**
-        *   For each cell, use the discretized (finite difference) versions of the SWEs to calculate how `h` and `u` will change over a small time step `Δt`.
-        *   Update the `h` and `u` values in all cells.
+        *   For each cell, use the discretized (finite difference) versions of the SWEs to calculate how $h$ and $u$ will change over a small time step $\Delta t$.
+        *   Update the $h$ and $u$ values in all cells.
         *   Repeat for many time steps.
-    4.  **Visualize:** Plot `h` (and maybe `u`) along the channel at different times to see the wave propagate.
+    4.  **Visualize:** Plot $h$ (and maybe $u$) along the channel at different times to see the wave propagate.
 
 *   **Why is this exercise valuable?**
     *   It gives you a concrete, hands-on experience with solving fluid dynamic equations, even simplified ones.
