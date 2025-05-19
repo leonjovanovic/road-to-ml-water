@@ -86,6 +86,10 @@ Understanding these components is key to seeing how SPH simulates fluid motion.
 
             $$\cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot \nabla W_{ij}}{1}$$
             $$\cdot (\mathbf{r}_i - \mathbf{r}_j) \cdot \nabla W_{ij}$$
+            $$\cdot  \cdot \nabla W_{ij}$$
+            $$\nabla W_{ij}$$
+            $$W_{ij}$$
+            $$W$$
             $$(\mathbf{r}_i - \mathbf{r}_j)$$
 
             Where $\nabla W_{ij}$ is the gradient of the smoothing kernel $W\big(|\mathbf{r}_i - \mathbf{r}_j|, h\big)$ with respect to $r_i$. This gradient vector points from $j$ to $i$ and its magnitude depends on how rapidly the kernel changes with distance.
