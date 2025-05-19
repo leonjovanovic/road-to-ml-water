@@ -78,23 +78,11 @@ Understanding these components is key to seeing how SPH simulates fluid motion.
 
             $$F_{ij}^{\text{pressure}} = - m_i \cdot m_j \cdot \left( \frac{P_i}{\rho_i^2} + \frac{P_j}{\rho_j^2} \right) \cdot \nabla W_{ij}$$
 
-            $$F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \cdot \rho_j} \right) \cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot W_{ij}}{\lvert\mathbf{r}_i - \mathbf{r}_j\rvert^2 + \varepsilon}$$
-
             $$F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \cdot \rho_j} \right) \cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot 1}{\lvert\mathbf{r}_i - \mathbf{r}_j\rvert^2 + \varepsilon}$$
 
-            $$F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \cdot \rho_j} \right) $$
+            $$F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \cdot \rho_j} \right) \cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot {\nabla}}{\lvert\mathbf{r}_i - \mathbf{r}_j\rvert^2 + \varepsilon}$$
 
-            $$\cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot \nabla W_{ij}}{\lvert\mathbf{r}_i - \mathbf{r}_j\rvert^2 + \varepsilon}$$
-            
-            $${\lvert\mathbf{r}_i - \mathbf{r}_j\rvert^2 + \varepsilon}$$
-
-            $$\cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot \nabla W_{ij}}{1}$$
-            $$\cdot (\mathbf{r}_i - \mathbf{r}_j) \cdot \nabla W_{ij}$$
-            $$\cdot  \cdot \nabla W_{ij}$$
-            $$\nabla W_{ij}$$
-            $$W_{ij}$$
-            $$W$$
-            $$(\mathbf{r}_i - \mathbf{r}_j)$$
+            $$F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \cdot \rho_j} \right) \cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot {W}}{\lvert\mathbf{r}_i - \mathbf{r}_j\rvert^2 + \varepsilon}$$
 
             Where $\nabla W_{ij}$ is the gradient of the smoothing kernel $W\big(|\mathbf{r}_i - \mathbf{r}_j|, h\big)$ with respect to $r_i$. This gradient vector points from $j$ to $i$ and its magnitude depends on how rapidly the kernel changes with distance.
         *   The total pressure force on $i$ is $\sum_j F_{ij}^{\text{pressure}}$.
