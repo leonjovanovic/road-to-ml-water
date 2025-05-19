@@ -88,6 +88,12 @@ Understanding these components is key to seeing how SPH simulates fluid motion.
 
             $$F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \cdot \rho_j} \right) \cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot {\nabla} {W_{ij}}}{\lvert\mathbf{r}_i - \mathbf{r}_j\rvert^2 + \varepsilon}$$
 
+            $$F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \cdot \rho_j} \right) \cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot {\nabla}}{\lvert\mathbf{r}_i - \mathbf{r}_j\rvert^2 + \varepsilon}$$
+
+            $$F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \cdot \rho_j} \right) \cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot {W_{ij}}}{\lvert\mathbf{r}_i - \mathbf{r}_j\rvert^2 + \varepsilon}$$
+
+            $$F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \cdot \rho_j} \right) \cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot {W}}{\lvert\mathbf{r}_i - \mathbf{r}_j\rvert^2 + \varepsilon}$$
+
             (This is one form; others exist, sometimes simpler, involving the Laplacian of the kernel or direct velocity differences). More simply, often expressed as:
 
             $$F_{ij}^{\text{viscosity}} = \sum_j m_j \cdot \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_j} \cdot \mu \cdot K_{\text{visc}} \cdot {\nabla^2 W_{ij}}$$
