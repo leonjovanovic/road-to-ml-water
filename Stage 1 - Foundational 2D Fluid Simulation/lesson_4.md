@@ -86,7 +86,14 @@ Understanding these components is key to seeing how SPH simulates fluid motion.
         *   **Goal:** To simulate the internal friction (viscosity $μ$) of the fluid. This should damp relative motion between particles and smooth out velocity differences.
         *   **How (Conceptual):** The SPH form for the viscous term $(\mu \nabla^2 \mathbf{u})$ in Navier-Stokes also involves summing contributions from neighbors. A common form for the viscosity force on particle $i$ from particle $j$ is:
 
-            $$F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \cdot \rho_j} \right) \cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot \nabla W_{ij}}{|\mathbf{r}_i - \mathbf{r}_j|^2 + \varepsilon}$$
+            $$
+            F_{ij}^{\text{viscosity}} = \mu \cdot m_i \cdot m_j \cdot \left( \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_i \cdot \rho_j} \right) \cdot \frac{(\mathbf{r}_i - \mathbf{r}_j) \cdot \nabla W_{ij}}{|\mathbf{r}_i - \mathbf{r}_j|^2 + \varepsilon}
+            $$
+
+            (This is one form; others exist, sometimes simpler, involving the Laplacian of the kernel or direct velocity differences). More simply, often expressed as:
+
+            $$F_{ij}^{\text{viscosity}} = \sum_j m_j \cdot \frac{\mathbf{v}_j - \mathbf{v}_i}{\rho_j} \cdot \mu \cdot K_{\text{visc}} \cdot \nabla^2 W_{ij}$$
+            where $K_{\text{visc}}$ depends on $h$.
         *   Essentially, if particle $j$ is moving significantly differently from $i$, a force is generated that tries to reduce this velocity difference.
         *   The total viscosity force on $i$ is $\sum_j F_{ij}^{\text{viscosity}}$.
 
