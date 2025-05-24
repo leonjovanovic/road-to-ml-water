@@ -937,6 +937,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pysplishsplash"
+version = "2.13.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/80/7d/621c3b22861ab55cab8247cd7a5b4f3cbabcb9fbdbd4363bf22a57772aa7/pySPlisHSPlasH-2.13.1-cp310-cp310-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:4239ef18b99033f6412787f30343f01eea60803218c8e6d91dd4a78e2474c919", size = 4489652, upload-time = "2024-01-12T07:26:17.769Z" },
+    { url = "https://files.pythonhosted.org/packages/f4/72/7d42e33d66cb435c98d22b86dcf7e73fd9a2d6dde08f6204b591a3d9030d/pySPlisHSPlasH-2.13.1-cp310-cp310-win_amd64.whl", hash = "sha256:dc79b018b5a433af67161160a32a12080def074534b214c18b0517e790433e9c", size = 3887755, upload-time = "2024-01-12T07:30:23.735Z" },
+]
+
+[[package]]
 name = "python-dateutil"
 version = "2.9.0.post0"
 source = { registry = "https://pypi.org/simple" }
@@ -1087,6 +1099,7 @@ dependencies = [
     { name = "ipympl" },
     { name = "matplotlib" },
     { name = "numpy" },
+    { name = "pysplishsplash" },
     { name = "requests" },
 ]
 
@@ -1096,6 +1109,7 @@ requires-dist = [
     { name = "ipympl", specifier = ">=0.9.7" },
     { name = "matplotlib", specifier = ">=3.10.3" },
     { name = "numpy", specifier = ">=1.23" },
+    { name = "pysplishsplash", specifier = ">=2.13.1" },
     { name = "requests", specifier = ">=2.28,<3.0" },
 ]
 
