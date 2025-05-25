@@ -9,6 +9,8 @@ dependencies = [
     "ipykernel>=6.29.5",
     "matplotlib>=3.10.3",
     "ipympl>=0.9.7",
+    "pysplishsplash>=2.13.1",
+    "pyvista>=0.45.2",
 ]
 
 [tool.uv]
