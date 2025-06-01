@@ -50,7 +50,6 @@
 **(Focus: Learning the fundamentals of GNNs and how they can represent particle systems.)**
 
 *   **Theory:**
-    *   **Recap of ML/DL Essentials for Physics:** Briefly review supervised learning (learning from labeled data), unsupervised learning (discovering patterns in unlabeled data), and reinforcement learning (learning through interaction and feedback). Basics of deep learning: neural network structure, common activation functions (e.g., ReLU, sigmoid), loss functions (measuring prediction error), and optimization algorithms (e.g., Adam) used to train neural networks.
     *   **Why GNNs for Physics?** Limitations of traditional NNs for irregular, interacting systems where particle order doesn't matter. Importance of permutation invariance/equivariance. GNNs are well-suited for representing and learning the dynamics of particle-based fluid simulations, naturally aligning with the Lagrangian perspective.
     *   **Graph Fundamentals:** Nodes, edges, adjacency matrices, graph-level/node-level/edge-level features.
     *   **Representing Particle Systems as Graphs:**
@@ -71,7 +70,7 @@
         *   Practice working with graph data structures using libraries such as **NetworkX** (for graph creation/manipulation) or PyTorch Geometric/DGL.
         *   Experiment with simple GNN models on synthetic or toy graph datasets to understand the fundamentals of graph-based learning.
     2.  **Simple GNN for 2D Particle Data:**
-        *   Use the **2D particle data generated in Chapter 1**.
+        *   Use the **2D particle data generated in Chapter 1** or some 2D particle dataset.
         *   Represent a single timestep (or a short sequence of timesteps) as a graph.
         *   Implement a basic GNN (e.g., an MLP applied to aggregated neighbor features, or a single GCN layer) to predict the *next velocity* or *acceleration* of each particle from its current state and its neighbors' states.
         *   **Goal:** Get familiar with processing particle data into graph format and performing a basic learning task using GNNs. This is about understanding the GNN mechanics with relevant data, not creating a perfect simulator yet.
