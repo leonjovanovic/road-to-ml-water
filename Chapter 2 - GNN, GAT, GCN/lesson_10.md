@@ -1,3 +1,4 @@
+
 # Lesson 10 &nbsp;–&nbsp; Aggregation Choices in Graph Neural Networks  
 *Sum, Mean, Max & Attention: how GNNs collect information from their neighbours*
 
@@ -5,8 +6,8 @@
 
 ## 1 Why do we need an “aggregation” step?
 During message passing every node *v* receives a (variable-length) multiset of messages  
-\(\{m_{u\!\to\!v}\;|\;u\in\mathcal N(v)\}\).  
-Because a neural network layer expects a **fixed-length** vector, we must *compress* that multiset into a single representation \( \mathbf m_v \).
+$\{m_{u\!\to\!v}\;|\;u\in\mathcal N(v)\}$.  
+Because a neural network layer expects a **fixed-length** vector, we must *compress* that multiset into a single representation $\mathbf m_v$.
 
 Three hard constraints guide the design:
 
@@ -14,7 +15,7 @@ Three hard constraints guide the design:
 2. **Variable degree** – nodes can have 1 or 10 000 neighbours; the operator must scale.  
 3. **Differentiability** – the function must be usable inside back-propagation.
 
-An *aggregation* operator \(\text{AGG}(\,\cdot\,)\) that satisfies 1-3 is therefore the linchpin of every GNN layer [14].
+An *aggregation* operator $\text{AGG}(\,\cdot\,)$ that satisfies 1-3 is therefore the linchpin of every GNN layer [14].
 
 ---
 
@@ -22,9 +23,9 @@ An *aggregation* operator \(\text{AGG}(\,\cdot\,)\) that satisfies 1-3 is theref
 
 ### 2.1 Sum aggregation  
 
-\[
+$$
 \boxed{\;\mathbf m_v = \sum_{u\in\mathcal N(v)} \mathbf h_u\;}
-\]  
+$$  
 
 *Pros*  
 * • exact “addition” of neighbour evidence – useful when forces, charges, fluxes **add up** (e.g. total incoming momentum).  
@@ -37,9 +38,9 @@ An *aggregation* operator \(\text{AGG}(\,\cdot\,)\) that satisfies 1-3 is theref
 
 ### 2.2 Mean aggregation  
 
-\[
+$$
 \boxed{\;\mathbf m_v = \tfrac1{|\mathcal N(v)|}\sum_{u\in\mathcal N(v)} \mathbf h_u\;}
-\]
+$$
 
 Effectively a **normalised sum** (used in vanilla GCN).  
 Keeps magnitudes stable irrespective of degree; well-behaved on social or citation graphs where information should be “shared” rather than accumulated [22].
@@ -48,9 +49,9 @@ Keeps magnitudes stable irrespective of degree; well-behaved on social or citati
 
 ### 2.3 Max pooling  
 
-\[
+$$
 \boxed{\;[\mathbf m_v]_k = \max_{u\in\mathcal N(v)} [\mathbf h_u]_k\;}
-\]
+$$
 
 Selects the element-wise strongest signal.  
 Analogy: instead of *asking friends for an average opinion*, you listen to the **loudest** voice in each topic.  
@@ -65,19 +66,27 @@ Graph Attention Networks (GAT) introduce *data-driven weights* [21]:
 
 1. **Linear projection**
 
-   \( \mathbf g_i = \mathbf W\,\mathbf h_i \)
+   $$
+   \mathbf g_i = \mathbf W\,\mathbf h_i
+   $$
 
 2. **Edge score**
 
-   \( e_{ij} = \text{LeakyReLU}\big(\mathbf a^\top[\mathbf g_i\;\|\;\mathbf g_j]\big) \)
+   $$
+   e_{ij} = \text{LeakyReLU}\big(\mathbf a^\top[\mathbf g_i\;\|\;\mathbf g_j]\big)
+   $$
 
 3. **Normalise**
 
-   \( \alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k\in\mathcal N(i)}\exp(e_{ik})} \)
+   $$
+   \alpha_{ij} = \frac{\exp(e_{ij})}{\sum_{k\in\mathcal N(i)}\exp(e_{ik})}
+   $$
 
 4. **Weighted sum**
 
-   \( \boxed{\;\mathbf m_i = \sum_{j\in\mathcal N(i)} \alpha_{ij}\,\mathbf g_j\;} \)
+   $$
+   \boxed{\;\mathbf m_i = \sum_{j\in\mathcal N(i)} \alpha_{ij}\,\mathbf g_j\;}
+   $$
 
 Several *heads* can be run in parallel; their outputs are concatenated (or averaged) prior to the update.
 

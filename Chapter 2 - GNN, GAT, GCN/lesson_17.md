@@ -8,16 +8,16 @@
 ## 1 | Why do we need a numerical integrator?
 
 The GNN gives us instantaneous accelerations  
-\[
+$$
 \mathbf{a}^{(n)} = \bigl[a_x^{(n)}, a_y^{(n)}, a_z^{(n)}\bigr]
-\]
+$$
 for every particle at timestep $n$.  
 Physics, however, is expressed in continuous time:
 
-\[
+$$
 \frac{d\mathbf{v}}{dt}= \mathbf{a}(t)\,,\qquad
 \frac{d\mathbf{x}}{dt}= \mathbf{v}(t)
-\]
+$$
 
 To move forward from the discrete prediction $\mathbf{a}^{(n)}$ to the next state $(\mathbf{x}^{(n+1)},\mathbf{v}^{(n+1)})$, we must **integrate** these differential equations over the interval $\Delta t$.  
 
@@ -30,13 +30,12 @@ To move forward from the discrete prediction $\mathbf{a}^{(n)}$ to the next stat
 
 The most straightforward explicit integrator:
 
-\[
+$$
 \begin{aligned}
 \mathbf{x}^{(n+1)} &= \mathbf{x}^{(n)} + \Delta t \,\mathbf{v}^{(n)} \\
 \mathbf{v}^{(n+1)} &= \mathbf{v}^{(n)} + \Delta t \,\mathbf{a}^{(n)}
-\end{aligned}
-\tag{1}
-\]
+\end{aligned} \tag{1}
+$$
 
 * **Pros**  
   * Two trivial vector additions — *fast*.  
@@ -52,13 +51,12 @@ If you try Forward Euler on a frictionless pendulum, its amplitude spirals outwa
 
 A minimal tweak yields a **symplectic** integrator that preserves Hamiltonian structure better [59]:
 
-\[
+$$
 \begin{aligned}
 \mathbf{v}^{(n+1)} &= \mathbf{v}^{(n)} + \Delta t \,\mathbf{a}^{(n)} \\
 \mathbf{x}^{(n+1)} &= \mathbf{x}^{(n)} + \Delta t \,\mathbf{v}^{(n+1)}
-\end{aligned}
-\tag{2}
-\]
+\end{aligned} \tag{2}
+$$
 
 * **Key difference:** The new position uses the **updated** velocity.  
 * **Properties**  
@@ -68,27 +66,27 @@ A minimal tweak yields a **symplectic** integrator that preserves Hamiltonian st
 
 ### Quick stability check  
 
-For a 1-D harmonic oscillator \(x'' + \omega^2 x = 0\), Symplectic Euler is stable if  
+For a 1-D harmonic oscillator $x'' + \omega^2 x = 0$, Symplectic Euler is stable if  
 
-\[
+$$
 \Delta t < \frac{2}{\omega}.
-\]
+$$
 
 That bound offers a concrete criterion when choosing $\Delta t$ for oscillatory regimes in fluids (e.g., surface tension waves).
 
 ---
 
-## 4 | Choosing the Time Step Δt
+## 4 | Choosing the Time Step $\Delta t$
 
-| Trade-off | Small Δt | Large Δt |
-|-----------|---------|----------|
-| Accuracy  | High    | Low      |
-| Wall-clock time | Slow (more steps) | Fast |
-| Stability | Safe    | Risky / diverges |
+| Trade-off | Small $\Delta t$ | Large $\Delta t$ |
+|-----------|-----------------|-----------------|
+| Accuracy  | High            | Low             |
+| Wall-clock time | Slow (more steps) | Fast            |
+| Stability | Safe            | Risky / diverges |
 
-*Rule of thumb:* Start with the Δt that your original SPH or CFD solver used, then experiment upward while watching kinetic energy curves.  
+*Rule of thumb:* Start with the $\Delta t$ that your original SPH or CFD solver used, then experiment upward while watching kinetic energy curves.  
 
-*GNN interaction:* Because the network was trained at some Δt<sub>train</sub>, very large deviations can create a distribution shift. Fortunately, recent work shows moderate generalisation to unseen Δt values if the training set contained varied dynamics [30].
+*GNN interaction:* Because the network was trained at some $\Delta t_{\text{train}}$, very large deviations can create a distribution shift. Fortunately, recent work shows moderate generalisation to unseen $\Delta t$ values if the training set contained varied dynamics [30].
 
 ---
 
@@ -146,7 +144,7 @@ Without a stable integrator, the car in your racing game would jitter or fly int
 1. **Accelerations are not enough** — integrate them!  
 2. **Forward Euler** is simple but can blow up.  
 3. **Symplectic Euler** is nearly as cheap and **much** more stable.  
-4. The integrator sits *after* the GNN; its timestep Δt is a critical hyper-parameter.  
+4. The integrator sits *after* the GNN; its timestep $\Delta t$ is a critical hyper-parameter.  
 5. Stable integration + accurate GNN = long, believable rollouts.
 
 ---
@@ -163,17 +161,8 @@ Without a stable integrator, the car in your racing game would jitter or fly int
 
 ## References
 
-[5] Physics Simulation With Graph Neural Networks Targeting Mobile — Arm Community  
-<https://community.arm.com/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/physics-simulation-graph-neural-networks-targeting-mobile>
-
-[26] Neural SPH: Improved Neural Modeling of Lagrangian Fluid Dynamics  
-<https://www.themoonlight.io/en/review/neural-sph-improved-neural-modeling-of-lagrangian-fluid-dynamics>
-
-[30] Equi-Euler GraphNet: An Equivariant, Temporal-Dynamics Informed Graph Neural Network for Dual Force and Trajectory Prediction in Multi-Body Systems  
-<https://arxiv.org/html/2504.13768v1>
-
-[59] Explicit Time Integration — Physics-Based Simulation  
-<https://phys-sim-book.github.io/lec1.4-explicit_time_integration.html>
-
-[60] Euler Integration Method for Solving Differential Equations  
-<https://x-engineer.org/euler-integration/>
+[5]: <https://community.arm.com/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/physics-simulation-graph-neural-networks-targeting-mobile>
+[26]: <https://www.themoonlight.io/en/review/neural-sph-improved-neural-modeling-of-lagrangian-fluid-dynamics>
+[30]: <https://arxiv.org/html/2504.13768v1>
+[59]: <https://phys-sim-book.github.io/lec1.4-explicit_time_integration.html>
+[60]: <https://x-engineer.org/euler-integration/>

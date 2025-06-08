@@ -25,30 +25,30 @@ Real-life analogy (for irregular neighbourhoods)
 
 ## 2. Mathematical formulation  
 
-For a graph \(G = (V,E)\) with  
+For a graph $G = (V,E)$ with  
 
-* feature matrix \(H^{(l)} \in \mathbb{R}^{N\times d_l}\) at layer \(l\),  
-* adjacency matrix \(A\) (binary or weighted),  
-* trainable weight matrix \(W^{(l)} \in \mathbb{R}^{d_l \times d_{l+1}}\),  
+* feature matrix $H^{(l)} \in \mathbb{R}^{N\times d_l}$ at layer $l$,  
+* adjacency matrix $A$ (binary or weighted),  
+* trainable weight matrix $W^{(l)} \in \mathbb{R}^{d_l \times d_{l+1}}$,  
 
 a **GCN layer** is
 
-\[
+$$
 H^{(l+1)} \;=\; \sigma \!\left( \, \tilde{A}\; H^{(l)} \; W^{(l)} \right), \tag{1}
-\]
+$$
 
 with  
 
-\[
+$$
 \tilde{A} \;=\; D^{-\tfrac12}\!\left(A + I\right)\! D^{-\tfrac12}. \tag{2}
-\]
+$$
 
-* \(I\) adds **self-loops** so a node keeps its own information.  
-* \(D\) is the diagonal degree matrix of \(A+I\): \(D_{ii} = \sum_j (A+I)_{ij}\).  
-* The symmetric normalisation \(D^{-\frac12}\) *prevents high-degree nodes from dominating* the average [50].  
-* \(\sigma\) is usually **ReLU**.  
+* $I$ adds **self-loops** so a node keeps its own information.  
+* $D$ is the diagonal degree matrix of $A+I$: $D_{ii} = \sum_j (A+I)_{ij}$.  
+* The symmetric normalisation $D^{-\frac12}$ *prevents high-degree nodes from dominating* the average [50].  
+* $\sigma$ is usually **ReLU**.  
 
-After \(K\) stacked layers every node has integrated information from its **\(K\)-hop neighbourhood**.  
+After $K$ stacked layers every node has integrated information from its **$K$-hop neighbourhood**.  
 
 > ⚠️  Without the normalisation term, features of highly connected nodes can explode, leading to training instability [50].
 
@@ -59,31 +59,31 @@ After \(K\) stacked layers every node has integrated information from its **\(K\
 | Image CNN                                   | Graph CNN (GCN)                                   |
 |---------------------------------------------|---------------------------------------------------|
 | 3 × 3 kernel slides over grid               | Normalised adjacency “slides” over graph          |
-| Same weights reused at each pixel location  | \(W^{(l)}\) reused at each node                   |
+| Same weights reused at each pixel location  | $W^{(l)}$ reused at each node                   |
 | 1-hop receptive field per layer             | 1-hop receptive field per layer                   |
 | Pooling enlarges receptive field            | Stacking layers enlarges receptive field          |
 
-Because **parameter sharing** is retained, the total number of weights does **not** depend on \(N\), allowing the model to generalise to graphs of unseen size [47].
+Because **parameter sharing** is retained, the total number of weights does **not** depend on $N$, allowing the model to generalise to graphs of unseen size [47].
 
 ---
 
 ## 4. Step-by-step computation (one layer)
 
 1. **Add self-loops**  
-   \(A' = A + I\)
+   $A' = A + I$
 
 2. **Compute degrees & normalise**  
-   \(D_{ii} = \sum_j A'_{ij}\)  
-   \(\tilde{A} = D^{-1/2} A' D^{-1/2}\)
+   $D_{ii} = \sum_j A'_{ij}$  
+   $\tilde{A} = D^{-1/2} A' D^{-1/2}$
 
 3. **Message aggregation**  
-   \(M = \tilde{A} \, H^{(l)}\) — every row is the (scaled) *average* of neighbour features.
+   $M = \tilde{A} \, H^{(l)}$ — every row is the (scaled) *average* of neighbour features.
 
 4. **Linear projection**  
-   \(Z = M \, W^{(l)}\)
+   $Z = M \, W^{(l)}$
 
 5. **Non-linearity**  
-   \(H^{(l+1)} = \text{ReLU}(Z)\)
+   $H^{(l+1)} = \text{ReLU}(Z)$
 
 Each step can be implemented efficiently with **sparse matrix–vector products**, crucial for large particle graphs.
 
@@ -93,15 +93,15 @@ Each step can be implemented efficiently with **sparse matrix–vector products*
 
 Suppose we model two water particles **A** and **B** with 1-dim. feature “temperature”.  
 
-| node | \(T^{(0)}\) |
+| node | $T^{(0)}$ |
 |------|------------|
 | A    | 90 °C      |
 | B    | 10 °C      |
 
-Adjacency \(A = \begin{bmatrix}0 & 1 \\ 1 & 0\end{bmatrix}\).  
+Adjacency $A = \begin{bmatrix}0 & 1 \\ 1 & 0\end{bmatrix}$.  
 After adding self-loops and normalising, both nodes simply average:  
 
-\[
+$$
 \tilde{A} =
 \frac12
 \begin{bmatrix}
@@ -115,9 +115,9 @@ M = \tilde{A} H^{(0)} =
 100\\
 100
 \end{bmatrix}.
-\]
+$$
 
-If \(W^{(0)} = 1\) and \(\sigma\) is identity, each particle’s new temperature is 50 °C — exactly what you would expect after **perfect heat conduction**.
+If $W^{(0)} = 1$ and $\sigma$ is identity, each particle’s new temperature is 50 °C — exactly what you would expect after **perfect heat conduction**.
 
 ---
 
@@ -174,7 +174,7 @@ Understanding the humble GCN therefore unlocks the door to the entire family of 
 
 1. A GCN layer blends each node’s features with a **degree-normalised average** of its neighbours.  
 2. Self-loops and symmetric normalisation keep training stable.  
-3. Stacking \(K\) layers lets information travel \(K\) hops – analogous to widening the receptive field in CNNs.  
+3. Stacking $K$ layers lets information travel $K$-hops – analogous to widening the receptive field in CNNs.  
 4. Simplicity is both strength (few parameters) and weakness (uniform, isotropic weighting).  
 
 ---
@@ -182,16 +182,13 @@ Understanding the humble GCN therefore unlocks the door to the entire family of 
 ## References  
 
 [44] Math Behind Graph Neural Networks – Rishabh Anand.  
-https://rish-16.github.io/posts/gnn-math/  
-
 [47] Graph convolutional neural networks – Matthew N. Bernstein.  
-https://mbernste.github.io/posts/gcn/  
-
 [50] Graph Convolutional Networks (GCN) – TOPBOTS.  
-https://www.topbots.com/graph-convolutional-networks/  
-
 [52] Graph Convolutional Networks (GCNs): Architectural Insights and Applications – GeeksforGeeks.  
-https://www.geeksforgeeks.org/graph-convolutional-networks-gcns-architectural-insights-and-applications/  
-
 [55] Graph Neural Networks Part 2: Graph Attention Networks vs GCNs – Towards Data Science.  
-https://towardsdatascience.com/graph-neural-networks-part-2-graph-attention-networks-vs-gcns-029efd7a1d92/  
+
+[44]: https://rish-16.github.io/posts/gnn-math/
+[47]: https://mbernste.github.io/posts/gcn/
+[50]: https://www.topbots.com/graph-convolutional-networks/
+[52]: https://www.geeksforgeeks.org/graph-convolutional-networks-gcns-architectural-insights-and-applications/
+[55]: https://towardsdatascience.com/graph-neural-networks-part-2-graph-attention-networks-vs-gcns-029efd7a1d92/

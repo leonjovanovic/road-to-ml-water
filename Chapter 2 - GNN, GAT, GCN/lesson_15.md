@@ -7,7 +7,7 @@
 
 In molecular dynamics, SPH fluid solvers or granular media, each particle is a **node** whose neighbours change continuously.  
 If particle *A* swims away from particle *B*, the edge (A,B) should disappear; if *C* drifts closer, a new edge (A,C) should be created.  
-Unlike a molecule with a fixed bond list, the *connectivity radius* in fluids is purely geometric, so the graph must be **rebuilt** (or at least **updated**) at every simulation step [^24][^25].
+Unlike a molecule with a fixed bond list, the *connectivity radius* in fluids is purely geometric, so the graph must be **rebuilt** (or at least **updated**) at every simulation step [1][2].
 
 <div align="center">
 
@@ -28,13 +28,13 @@ Unlike a molecule with a fixed bond list, the *connectivity radius* in fluids is
 Most particle solvers already define a **smoothing length** *h* used in kernel evaluations.  
 We simply adopt the same rule for our graph:
 
-\[
+$$
 \text{edge}(i,j)=
 \begin{cases}
 1 & \text{if } \|\,\mathbf{x}_j-\mathbf{x}_i\|_2 \le h \\
 0 & \text{otherwise}
 \end{cases}
-\]
+$$
 
 where  
 
@@ -58,7 +58,7 @@ Well-known spatial data structures drop the cost to (roughly) $\mathcal{O}(N \lo
 
 * **Uniform spatial hashing / cell linked lists** – classical SPH trick; constant-time binning if cell width ≥ *h*.  
 * **k-d tree** – balanced tree in 3-D, good when particle density varies a lot.  
-* **GPU radix sort + prefix sum** – used by recent GNN-accelerated SPH engines on mobiles [^5].
+* **GPU radix sort + prefix sum** – used by recent GNN-accelerated SPH engines on mobiles [3].
 
 > Analogy – finding friends at a concert  
 > Instead of shouting everyone’s name (all-pairs), you first split the crowd into blocks by seat number (spatial hashing) and only shout inside *your* block.
@@ -70,26 +70,26 @@ Well-known spatial data structures drop the cost to (roughly) $\mathcal{O}(N \lo
 For each timestep *t* we build
 
 1. **Node feature matrix**  
-   \[
-     \mathbf{X}^{(t)} \in \mathbb{R}^{N \times D_\text{node}}
-   \]  
+   $$
+   \mathbf{X}^{(t)} \in \mathbb{R}^{N \times D_\text{node}}
+   $$
    Typical channels  
    – position, velocity, mass, one-hot type, density, pressure …
 
 2. **Edge index list** (sparse)  
-   \[
-     \mathbf{E}^{(t)} = 
-       \begin{bmatrix}
-         i_1 & i_2 & \dots \\
-         j_1 & j_2 & \dots
-       \end{bmatrix}
-   \]  
+   $$
+   \mathbf{E}^{(t)} = 
+     \begin{bmatrix}
+       i_1 & i_2 & \dots \\
+       j_1 & j_2 & \dots
+     \end{bmatrix}
+   $$
    where $(i_\ell ,j_\ell)$ is the ℓ-th directed edge.
 
 3. **Edge feature matrix**  
-   \[
-     \mathbf{F}^{(t)} \in \mathbb{R}^{|\mathbf{E}^{(t)}| \times D_\text{edge}}
-   \]  
+   $$
+   \mathbf{F}^{(t)} \in \mathbb{R}^{|\mathbf{E}^{(t)}| \times D_\text{edge}}
+   $$
    Common channels  
    – relative displacement $\Delta\mathbf{x}_{ij}$, distance $d_{ij}$, maybe a boundary normal.
 
@@ -111,7 +111,7 @@ data = Data(x=X, edge_index=E, edge_attr=F)
 
 | strategy | complexity | GPU friendliness | notes |
 |----------|------------|------------------|-------|
-| **Full rebuild** every Δt | simple; same cost each step | easy | safest; used in many papers [^25] |
+| **Full rebuild** every Δt | simple; same cost each step | easy | safest; used in many papers [2] |
 | **Incremental** update | cheaper if particles move little | tricky – scattered updates | needs book-keeping of cell transfers |
 
 For highly turbulent flows the full rebuild is often chosen because neighbour lists change anyway.
@@ -123,9 +123,9 @@ For highly turbulent flows the full rebuild is often chosen because neighbour li
 Edge attributes are not mandatory, but they boost accuracy because **force laws depend on geometry**.
 
 Example – 2-D SPH kernel weight  
-\[
-  w_{ij} = \left( 1 - \frac{d_{ij}}{h} \right)^3_+
-\]
+$$
+w_{ij} = \left( 1 - \frac{d_{ij}}{h} \right)^3_+
+$$
 
 You can let the network *learn* such a weight by feeding $d_{ij}$ as a feature.  
 Attention-based GNNs (GAT) sometimes use only $\Delta\mathbf{x}_{ij}$ and let the attention mechanism infer $d_{ij}$ implicitly.
@@ -175,17 +175,6 @@ Therefore, spend as much engineering effort on neighbour search and data layout 
 
 ## Sources
 
-[^5]: Physics Simulation With Graph Neural Networks Targeting Mobile – Arm Community  
-     <https://community.arm.com/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/physics-simulation-graph-neural-networks-targeting-mobile>
-
-[^24]: Accelerating Smoothed Particle Hydrodynamics with Graph Neural Networks – EPCC  
-     <https://www.epcc.ed.ac.uk/whats-happening/articles/accelerating-smoothed-particle-hydrodynamics-graph-neural-networks>
-
-[^25]: Graph Neural Network-accelerated Lagrangian Fluid Simulation  
-     <https://www.researchgate.net/publication/358604218_Graph_neural_network-accelerated_Lagrangian_fluid_simulation>
-
-[^40]: Introduction to Graph Data Structure – GeeksforGeeks  
-     <https://www.geeksforgeeks.org/introduction-to-graphs-data-structure-and-algorithm-tutorials/>
-
-[^43]: Implementing Graphs: Edge List, Adjacency List, Adjacency Matrix – AlgoDaily  
-     <https://algodaily.com/lessons/implementing-graphs-edge-list-adjacency-list-adjacency-matrix>
+[1]: https://www.epcc.ed.ac.uk/whats-happening/articles/accelerating-smoothed-particle-hydrodynamics-graph-neural-networks
+[2]: https://www.researchgate.net/publication/358604218_Graph_neural_network-accelerated_Lagrangian_fluid_simulation
+[3]: https://community.arm.com/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/physics-simulation-graph-neural-networks-targeting-mobile

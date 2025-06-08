@@ -15,7 +15,7 @@ $$
 $$
 </div>
 
-After **K layers** the embedding of node \(v\) has access to every node that is at most \(K\) edges away:
+After **K layers** the embedding of node $v$ has access to every node that is at most $K$ edges away:
 
 <div align="center">
 
@@ -39,23 +39,23 @@ A generic message-passing layer can be written [14]:
 
 <div align="center">
 
-\[
+$$
 m^{(l)}_v \;=\;
 \text{AGG}\Bigl(\{\,\phi_m(h^{(l-1)}_v,h^{(l-1)}_u,e_{uv})\;|\;u\in\mathcal N(v)\}\Bigr)
-\]
+$$
 
-\[
+$$
 h^{(l)}_v \;=\;
 \phi_u\!\bigl(h^{(l-1)}_v , m^{(l)}_v\bigr)
-\]
+$$
 </div>
 
 where  
-* \(h^{(l)}_v\) – embedding of node \(v\) after \(l\) layers,  
-* \(\phi_m,\phi_u\) – learnable functions (usually small MLPs),  
-* \(\text{AGG}\) – permutation-invariant aggregator (sum/mean/max/attention).
+* $h^{(l)}_v$ – embedding of node $v$ after $l$ layers,  
+* $\phi_m,\phi_u$ – learnable functions (usually small MLPs),  
+* $\text{AGG}$ – permutation-invariant aggregator (sum/mean/max/attention).
 
-Iterating the pair \(\bigl(m^{(l)}_v, h^{(l)}_v\bigr)\) **K times** stacks K layers.
+Iterating the pair $\bigl(m^{(l)}_v, h^{(l)}_v\bigr)$ **K times** stacks K layers.
 
 ---
 
@@ -105,7 +105,7 @@ Both phenomena are amplified by depth but stem from different causes.
 |-----------|-----------|------------------------|
 | **Residual / skip connections** (“ResGNN”) | Give later layers direct access to earlier, more local features [16]. | $$h^{(l)}_v = \phi_u(h^{(l-1)}_v,m^{(l)}_v) \;+\; h^{(l-1)}_v$$ |
 | **Dense or Jumping Knowledge** | Concatenate embeddings from several layers and let model choose best scale. | $$h^{\text{out}}_v = \text{JK}\bigl(h^{(1)}_v,\dots,h^{(K)}_v\bigr)$$ |
-| **Normalization (Batch/Layer)** | Prevents numerical explosion, stabilises gradient flow. | apply to \(h^{(l)}\) before non-linearity |
+| **Normalization (Batch/Layer)** | Prevents numerical explosion, stabilises gradient flow. | apply to $h^{(l)}$ before non-linearity |
 | **Depth-adaptive architectures** | Use fewer layers but enlarge receptive field with *dilated* neighbourhoods or *hierarchical pooling*. ||
 | **Graph rewiring / positional encodings** | Add virtual edges or distance encodings so fewer layers are needed to pass distant info [44]. ||
 
@@ -119,7 +119,7 @@ Both phenomena are amplified by depth but stem from different causes.
 2. **Plot embedding variance vs. depth** during training; collapsing variance signals over-smoothing soon.  
 3. **Add residual connections** by default. They cost nothing but help greatly.  
 4. **Benchmark depth**: run 2, 4, 6 layers; plot rollout error vs. wall-clock time. Select a knee point.  
-5. **Remember neighbour growth**: A K-hop neighbourhood scales roughly as \(O(\text{degree}^K)\). Use sparse libraries (PyG / DGL) so cost does not explode.
+5. **Remember neighbour growth**: A K-hop neighbourhood scales roughly as $O(\text{degree}^K)$. Use sparse libraries (PyG / DGL) so cost does not explode.
 
 ---
 
@@ -132,12 +132,7 @@ Mitigate with residual connections, smart aggregators, and by choosing a depth t
 
 ---
 
-## References  
-
-[5] – Physics Simulation With Graph Neural Networks Targeting Mobile. <https://community.arm.com/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/physics-simulation-graph-neural-networks-targeting-mobile>  
-
-[14] – The Graph Neural Network Model. <https://www.cs.mcgill.ca/~wlh/grl_book/files/GRL_Book-Chapter_5-GNNs.pdf>  
-
-[16] – Introduction to Graph Machine Learning. <https://huggingface.co/blog/intro-graphml>  
-
-[44] – Math Behind Graph Neural Networks. <https://rish-16.github.io/posts/gnn-math/>  
+[5]: https://community.arm.com/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/physics-simulation-graph-neural-networks-targeting-mobile
+[14]: https://www.cs.mcgill.ca/~wlh/grl_book/files/GRL_Book-Chapter_5-GNNs.pdf
+[16]: https://huggingface.co/blog/intro-graphml
+[44]: https://rish-16.github.io/posts/gnn-math/

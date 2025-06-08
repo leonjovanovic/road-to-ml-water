@@ -46,9 +46,9 @@ At every time-step *t* we
 
 Two particles *i* and *j* are connected iff  
 
-\[
+$$
 \|\mathbf{x}_i-\mathbf{x}_j\|_2 < r_\text{kernel}
-\]
+$$
 
 where $r_\text{kernel}$ is the SPH smoothing length [23].  
 Efficient neighbour search (spatial hashing, k-d tree) keeps the cost near **O(N)** rather than **O(N²)** [25].
@@ -77,14 +77,14 @@ into a **D-dimensional embedding** $\mathbf{h}^{(0)}_i$.
 Any GCN, GAT or bespoke equivariant layer can be stacked **L** times.  
 At layer $l$ the generic update is  
 
-\[
+$$
 \begin{aligned}
 \mathbf{m}^{(l)}_i &= \text{AGG}\_{\;j\in\mathcal{N}(i)}\;
       \phi_\text{msg}\!\big(\mathbf{h}^{(l-1)}_i,\mathbf{h}^{(l-1)}_j,\mathbf{e}_{ij}\big)  
       \\[2pt]
 \mathbf{h}^{(l)}_i &= \phi_\text{upd}\!\big(\mathbf{h}^{(l-1)}_i,\mathbf{m}^{(l)}_i\big)
 \end{aligned}
-\]
+$$
 
 * $\phi_\text{msg}$ – an MLP that builds the message  
 * **AGG** – *sum / mean / attention* (Lesson 10)  
@@ -98,15 +98,15 @@ After **L** hops each particle “knows” about its L-neighbourhood (pressure w
 
 A final shared MLP maps $\mathbf{h}^{(L)}_i$ to the acceleration  
 
-\[
+$$
 \hat{\mathbf{a}}_i = g_\theta\!\big(\mathbf{h}^{(L)}_i\big) \in \mathbb{R}^3
-\]
+$$
 
 Why accelerations?  
 * They are the quantity directly linked to forces via **Newton’s 2ⁿᵈ law**  
-  \[
+  $$
   \mathbf{F}_i = m_i\,\mathbf{a}_i
-  \]  
+  $$  
   – exactly what message passing is approximating [26].  
 * Empirically yields *stable long rollouts* compared with predicting positions outright [30].
 
@@ -118,23 +118,23 @@ We now convert $\hat{\mathbf{a}}_i$ into future positions and velocities.
 
 ### 6.1 Forward Euler (simple but fragile) [59]
 
-\[
+$$
 \begin{aligned}
 \mathbf{v}^{t+1}_i &= \mathbf{v}^{t}_i + \Delta t\,\hat{\mathbf{a}}_i \\[4pt]
 \mathbf{x}^{t+1}_i &= \mathbf{x}^{t}_i + \Delta t\,\mathbf{v}^{t}_i
 \end{aligned}
-\]
+$$
 
 Unconditionally unstable for many stiff problems.
 
 ### 6.2 Symplectic Euler (recommended) [59]
 
-\[
+$$
 \begin{aligned}
 \mathbf{v}^{t+1}_i &= \mathbf{v}^{t}_i + \Delta t\,\hat{\mathbf{a}}_i \\[4pt]
 \mathbf{x}^{t+1}_i &= \mathbf{x}^{t}_i + \Delta t\,\mathbf{v}^{t+1}_i
 \end{aligned}
-\]
+$$
 
 • **Conditionally stable** if $\Delta t$ is smaller than a CFL-like limit.  
 • Better energy behaviour for Hamiltonian systems.
@@ -159,9 +159,9 @@ Key details
 
 * **Dynamic graphs** – edges rebuilt each step (Lesson 15).  
 * **Back-prop through time** – for training multi-step losses you usually unroll **K** steps and compute  
-  \[
-  \mathcal L = \frac1{K}\sum_{k=1}^{K}\big\|\hat{\mathbf{x}}^{t+k}-\mathbf{x}^{t+k}\big\|^2
-  \]  
+  $$
+  \mathcal L = \frac1{K}\sum_{k=1}^{K}\big\|\hat{\mathbf{x}}^{t+k} - \mathbf{x}^{t+k}\big\|^2
+  $$  
   plus optional energy / momentum regularisers [30].
 
 ---
@@ -213,14 +213,12 @@ Arm’s demo [5] fits a 6-layer GNN (~1 M parameters) that predicts acceleration
 
 ---
 
-## Sources  
-
-[5] Physics Simulation With Graph Neural Networks Targeting Mobile – Arm Community.  
-[14] The Graph Neural Network Model.  
-[23] Neural SPH: Improved Neural Modeling of Lagrangian Fluid Dynamics – arXiv.  
-[24] Accelerating Smoothed Particle Hydrodynamics with Graph Neural Networks – EPCC.  
-[25] Graph Neural Network-Accelerated Lagrangian Fluid Simulation.  
-[26] [Literature Review] Neural SPH: Improved Neural Modeling of Lagrangian Fluid Dynamics.  
-[30] Equi-Euler GraphNet: An Equivariant, Temporal-Dynamics Informed GNN for Dual Force and Trajectory Prediction.  
-[59] Explicit Time Integration – Physics-Based Simulation.  
-[60] Euler Integration Method for Solving Differential Equations – x-engineer.org.  
+[5]: https://community.arm.com/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/physics-simulation-graph-neural-networks-targeting-mobile
+[14]: https://www.cs.mcgill.ca/~wlh/grl_book/files/GRL_Book-Chapter_5-GNNs.pdf
+[23]: https://arxiv.org/html/2402.06275v1
+[24]: https://www.epcc.ed.ac.uk/whats-happening/articles/accelerating-smoothed-particle-hydrodynamics-graph-neural-networks
+[25]: https://www.researchgate.net/publication/358604218_Graph_neural_network-accelerated_Lagrangian_fluid_simulation
+[26]: https://www.themoonlight.io/en/review/neural-sph-improved-neural-modeling-of-lagrangian-fluid-dynamics
+[30]: https://arxiv.org/html/2504.13768v1
+[59]: https://phys-sim-book.github.io/lec1.4-explicit_time_integration.html
+[60]: https://x-engineer.org/euler-integration/
