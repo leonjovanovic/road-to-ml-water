@@ -18,12 +18,10 @@ The mathematics behind both is identical; only the **meaning** differs.
 
 A (simple) graph is an ordered pair  
 
-\[
-G = (V, E)
-\]
+$$ G = (V, E) $$
 
-* **\(V\)** – a finite set of *vertices* (or *nodes*).  
-* **\(E\)** – a set of *edges*; each edge connects one or two vertices. [15]
+* **$V$** – a finite set of *vertices* (or *nodes*).  
+* **$E$** – a set of *edges*; each edge connects one or two vertices. [15]
 
 If the context demands it, we enrich this definition with *attributes* (node features, edge features, global features).  
 For now we stick to bare structure.
@@ -46,41 +44,35 @@ In raw graph theory these labels are optional, but in GNNs they are almost alway
 ## 6.4  Edges (Links)
 
 ### 6.4.1  Directed vs Undirected  
-* **Directed**  – ordered pair \((u,v)\); information can flow one way (Twitter *follow*) [15].  
-* **Undirected** – unordered set \(\{u,v\}\); relation is symmetric (Facebook *friend*).
+* **Directed**  – ordered pair $(u,v)$; information can flow one way (Twitter *follow*) [15].  
+* **Undirected** – unordered set $\{u,v\}$; relation is symmetric (Facebook *friend*).
 
 For GNNs, the direction matters because it decides which messages are exchanged during *message passing*.
 
 ### 6.4.2  Weighted Edges  
-An edge weight \(w_{uv}\in\mathbb{R}\) quantifies strength, distance or cost (road length between two cities).  
+An edge weight $w_{uv} \in \mathbb{R}$ quantifies strength, distance or cost (road length between two cities).  
 In a **weighted adjacency matrix**
 
-\[
-A_{uv} =
-\begin{cases}
-w_{uv} & \text{if an edge exists} \\
-0      & \text{otherwise}
-\end{cases}
-\]
+$$ A_{uv} = \begin{cases} w_{uv} & \text{if an edge exists} \\ 0 & \text{otherwise} \end{cases} $$
 
 the same structure stores both topology and magnitude [15].
 
 ### 6.4.3  Self-loops & Multigraphs (optional, but common in GNNs)  
-* **Self-loop**: edge from a node to itself; often added intentionally (\(A \leftarrow A+I\)) so a GNN can mix a node’s own features with messages from neighbours (GCN normalization, Lesson 12).  
+* **Self-loop**: edge from a node to itself; often added intentionally ($A \leftarrow A+I$) so a GNN can mix a node’s own features with messages from neighbours (GCN normalization, Lesson 12).  
 * **Multigraph**: multiple parallel edges (e.g. different chemical bonds between same atoms).
 
 ---
 
 ## 6.5  Graph Representations in Code
 
-| Representation | Memory (dense) | Memory (sparse) | Lookup \(A_{ij}\) | Iterate neighbors | Typical use | Notes |
+| Representation | Memory (dense) | Memory (sparse) | Lookup $A_{ij}$ | Iterate neighbors | Typical use | Notes |
 |----------------|---------------|-----------------|-------------------|-------------------|-------------|-------|
-| **Adjacency matrix** | \(O(N^2)\) | same | \(O(1)\) | \(O(N)\) | dense graphs, matrix algebra | wasteful when graph is sparse [43] |
-| **Adjacency list**   | — | \(O(N+E)\) | \(O(\text{deg}(i))\) | \(O(\text{deg}(i))\) | large sparse graphs | default in PyG/DGL [40] |
-| **Edge list**        | — | \(O(E)\) | \(O(E)\) | \(O(E)\) | data import/export | simplest to store |
+| **Adjacency matrix** | $O(N^2)$ | same | $O(1)$ | $O(N)$ | dense graphs, matrix algebra | wasteful when graph is sparse [43] |
+| **Adjacency list**   | — | $O(N+E)$ | $O(\text{deg}(i))$ | $O(\text{deg}(i))$ | large sparse graphs | default in PyG/DGL [40] |
+| **Edge list**        | — | $O(E)$ | $O(E)$ | $O(E)$ | data import/export | simplest to store |
 
 Where  
-\(N=|V|\),  \(E=|E|\),  \(\text{deg}(i)\) = degree of node \(i\).
+$N=|V|$,  $E=|E|$,  $\text{deg}(i)$ = degree of node $i$.
 
 *Practical tip*: Particle simulations are extremely sparse—each particle interacts with only a handful of neighbours—so adjacency lists plus **sparse tensors** are the norm in modern GNN libraries.
 
@@ -88,32 +80,28 @@ Where
 
 ## 6.6  Degrees and the Degree Matrix
 
-For node \(i\)
+For node $i$
 
-\[
-d_i \;=\;\sum_{j} A_{ij}
-\]
+$$ d_i = \sum_{j} A_{ij} $$
 
 and  
 
-\[
-D = \operatorname{diag}(d_1,\dots,d_N)
-\]
+$$ D = \operatorname{diag}(d_1,\dots,d_N) $$
 
-The degree often appears in normalized operators (GCN: \(\tilde A = D^{-1/2}(A+I)D^{-1/2}\)).  Intuitively, this rescales the contribution of each neighbour so high-degree nodes do not dominate the aggregation.
+The degree often appears in normalized operators (GCN: $\tilde A = D^{-1/2}(A+I)D^{-1/2}$).  Intuitively, this rescales the contribution of each neighbour so high-degree nodes do not dominate the aggregation.
 
 ---
 
 ## 6.7  Putting It All Together – From Abstraction to Physics
 
 1. **Choose nodes** – every SPH particle becomes a vertex.  
-2. **Define edges** – connect particles within smoothing length \(h\).  
+2. **Define edges** – connect particles within smoothing length $h$.  
 3. **Pick storage** – adjacency list for speed; build it every timestep using spatial hashing.  
 4. **Attach features** – position, velocity, mass, type.  
 5. **Feed into GNN** – the graph now tells the network *who can talk to whom*; the features tell it *what to talk about*.
 
 *Analogy* –  
-Imagine a group chat where only neighbours within Bluetooth range can communicate.  The **participant list** is \(V\); the **Bluetooth links** are \(E\).  Step out of range, and your edge disappears in the next timestep.
+Imagine a group chat where only neighbours within Bluetooth range can communicate.  The **participant list** is $V$; the **Bluetooth links** are $E$.  Step out of range, and your edge disappears in the next timestep.
 
 ---
 
@@ -129,9 +117,8 @@ Next lesson we dive into **multi-level features** and see how raw graphs become 
 
 ---
 
-## 6.9  Sources  
-[15] viso.ai – “Graph Neural Networks (GNNs) – Comprehensive Guide”  
-[24] EPCC – “Accelerating Smoothed Particle Hydrodynamics with GNNs”  
-[40] GeeksForGeeks – “Introduction to Graph Data Structure”  
-[41] DataCamp – “Introduction to Graph Theory”  
-[43] AlgoDaily – “Implementing Graphs: Edge List, Adjacency List, Adjacency Matrix”
+[15]: https://viso.ai/deep-learning/graph-neural-networks/
+[24]: https://www.epcc.ed.ac.uk/whats-happening/articles/accelerating-smoothed-particle-hydrodynamics-graph-neural-networks
+[40]: https://www.geeksforgeeks.org/introduction-to-graphs-data-structure-and-algorithm-tutorials/
+[41]: https://www.datacamp.com/tutorial/introduction-to-graph-theory
+[43]: https://algodaily.com/lessons/implementing-graphs-edge-list-adjacency-list-adjacency-matrix

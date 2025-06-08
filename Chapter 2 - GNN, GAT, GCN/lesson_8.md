@@ -34,13 +34,13 @@ For fluid or molecular simulations we often observe:
 
 A square matrix $\mathbf A \in \{0,1\}^{N \times N}$ (or real-valued if edges are weighted):
 
-```math
+$$
 A_{ij} \;=\;
 \begin{cases}
 1 & \text{if there is an edge } (i,j)\\[6pt]
 0 & \text{otherwise}
 \end{cases}
-```
+$$
 
 ### Characteristics  
 
@@ -95,7 +95,7 @@ Because $\text{deg}(i)$ is small in physical simulations, all critical operation
 ### Why GNN toolkits love it  
 
 PyTorch Geometric and DGL internally translate this list into two flat tensors  
-`edge_index = [src, dst]` (shape `2 × E`) – a GPU-friendly edge list variant, but lookup semantics of adjacency lists.  
+`edge_index = [src, dst]` (shape $2 \times E$) – a GPU-friendly edge list variant, but lookup semantics of adjacency lists.  
 
 [40]
 
@@ -155,9 +155,9 @@ Adjacency lists beat the matrix by three orders of magnitude – the difference 
 
 While the **API** may expose an adjacency list, the heavy linear algebra inside a GNN layer often uses a *sparse COO tensor*:
 
-```math
+$$
 \mathbf{H}^{(k+1)} = \sigma\!\bigl( \mathbf{\hat A} \mathbf{H}^{(k)} \mathbf{W}^{(k)} \bigr)
-```
+$$
 
 where $\mathbf{\hat A}$ stores only the non-zero indices and their values.  
 Libraries such as **cuSPARSE** exploit this to multiply in $\mathcal O(N + E)$ instead of $N^2$.
@@ -182,8 +182,6 @@ Grasp these trade-offs now and you will know exactly where to look when your “
 
 ---
 
-## References  
-
-[15] Graph Neural Networks (GNNs) – Comprehensive Guide. https://viso.ai/deep-learning/graph-neural-networks/  
-[40] GeeksforGeeks. “Introduction to Graph Data Structure.” https://www.geeksforgeeks.org/introduction-to-graphs-data-structure-and-algorithm-tutorials/  
-[43] AlgoDaily. “Implementing Graphs: Edge List, Adjacency List, Adjacency Matrix.” https://algodaily.com/lessons/implementing-graphs-edge-list-adjacency-list-adjacency-matrix  
+[15]: https://viso.ai/deep-learning/graph-neural-networks/
+[40]: https://www.geeksforgeeks.org/introduction-to-graphs-data-structure-and-algorithm-tutorials/
+[43]: https://algodaily.com/lessons/implementing-graphs-edge-list-adjacency-list-adjacency-matrix

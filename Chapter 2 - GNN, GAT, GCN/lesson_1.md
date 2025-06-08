@@ -34,11 +34,11 @@ MLPs treat their input as a single, flat vector.
 
 Even with infinite capacity, approximation error for an MLP on smooth functions shrinks only as  
 
-\[
+$$
 \varepsilon(n)\;=\;O\!\left(n^{-1}\right) \tag{1}
-\]
+$$
 
-where \(n\) is the number of hidden units [1].  
+where $n$ is the number of hidden units [1].  
 That does *not* rescue you from poor inductive bias: the network is still blind to particle permutations or locality.
 
 ---
@@ -47,9 +47,9 @@ That does *not* rescue you from poor inductive bias: the network is still blind 
 
 CNNs shine on images because a small convolutional kernel exploits **translation equivariance**:
 
-\[
+$$
 f\bigl(T_{\mathbf{\delta}}\,x\bigr) \;=\; T_{\mathbf{\delta}}\,f(x) \tag{2}
-\]
+$$
 
 Shift the picture → shift the features; nothing else changes [3].
 
@@ -113,7 +113,6 @@ A GNN reads the same graph regardless of spreadsheet order and updates only the 
 
 ---
 
-## References
 
 [1]: https://arxiv.org/html/2504.11397v1  
 [2]: https://ar5iv.labs.arxiv.org/html/1805.00915  

@@ -10,15 +10,11 @@ In this lesson we unpack what that sentence really means and how GNNs achieve it
 Imagine simulating a glass of water that contains 50 000 fluid particles.  
 Whether you list those particles as  
 
-```
-[ p₁,  p₂,  p₃, …, p₅₀₀₀₀ ]
-```  
+$$ [p_1, p_2, p_3, \dots, p_{50000}] $$
 
 or randomly shuffle the order
 
-```
-[ p₁₀₄₂, p₃₇, p₄₉₉, …, p₃ ]
-```
+$$ [p_{1042}, p_{37}, p_{499}, \dots, p_3] $$
 
 **the physics is identical**.  
 If a model’s prediction *changes* just because you permuted an internal list, you have introduced a non-physical artefact.
@@ -35,8 +31,8 @@ Let **x** be the vector that concatenates all particle features.
 
 | Symmetry type | Formal definition | Intuition |
 |---------------|------------------|-----------|
-| **Permutation invariance** |  f(P x) = f(x) | The *value* you predict for the whole system should not change if you shuffle inputs.   Example: total mass, total energy. |
-| **Permutation equivariance** |  f(P x) = P f(x) | The *ordering* of the outputs follows the ordering of the inputs.   Example: velocity predicted for particle *i* still ends up in the *i*-th slot after a permutation. |
+| **Permutation invariance** | $f(Px) = f(x)$ | The *value* you predict for the whole system should not change if you shuffle inputs.   Example: total mass, total energy. |
+| **Permutation equivariance** | $f(Px) = P f(x)$ | The *ordering* of the outputs follows the ordering of the inputs.   Example: velocity predicted for particle $i$ still ends up in the $i$-th slot after a permutation. |
 
 Those definitions generalise the better-known translation equivariance of CNNs [3].  
 Replace “shifting pixels” with “shuffling particles” and the analogy is exact.
@@ -45,17 +41,17 @@ Replace “shifting pixels” with “shuffling particles” and the analogy is 
 
 ## 3. A quick detour: the group-theoretic point of view
 
-The set of all permutations of *N* objects forms the **symmetric group Sₙ**.  
+The set of all permutations of *N* objects forms the **symmetric group $S_n$**.  
 Writing the property in group language is convenient:
 
-* f is **G-invariant** ⇔ f(g·x) = f(x) ∀ g ∈ G*  
-* f is **G-equivariant** ⇔ f(g·x) = ρ(g) f(x) ∀ g ∈ G*,  
+*   f is **G-invariant** $\Leftrightarrow f(g \cdot x) = f(x) \quad \forall g \in G$
+*   f is **G-equivariant** $\Leftrightarrow f(g \cdot x) = \rho(g) f(x) \quad \forall g \in G$,
 
-where ρ is a representation of the group (often the very same permutation action).  
-For permutations we usually take ρ(g)=g itself.
+where $\rho$ is a representation of the group (often the very same permutation action).  
+For permutations we usually take $\rho(g)=g$ itself.
 
 Why mention this?  
-Because the exact same algebra will later let us talk about **SE(3)-equivariance** (rotations & translations in 3-D space) with hardly any notational changes [17].
+Because the exact same algebra will later let us talk about **$SE(3)$-equivariance** (rotations & translations in 3-D space) with hardly any notational changes [17].
 
 ---
 
@@ -65,19 +61,19 @@ Because the exact same algebra will later let us talk about **SE(3)-equivariance
 
 A typical GNN layer does three steps
 
-1. **Message computation**  
-   m<sub>u→v</sub> = φ<sub>M</sub>(h<sub>u</sub>, h<sub>v</sub>, e<sub>uv</sub>)
-2. **Aggregation (permutation *invariant*)**  
-   M<sub>v</sub> = 𝐀𝐆𝐆 { m<sub>u→v</sub> : u ∈ 𝒩(v) }
-3. **Update (shared weights)**  
-   h′<sub>v</sub> = φ<sub>U</sub>(h<sub>v</sub>, M<sub>v</sub>)
+1.  **Message computation**  
+    $m_{u \to v} = \phi_M(h_u, h_v, e_{uv})$
+2.  **Aggregation (permutation *invariant*)**  
+    $M_v = \mathbf{AGG} \{ m_{u \to v} : u \in \mathcal{N}(v) \}$
+3.  **Update (shared weights)**  
+    $h'_v = \phi_U(h_v, M_v)$
 
 The *only* place where neighbour messages are combined is the **AGG** step.  
 As long as AGG is a multiset function such as **sum**, **mean**, **max** or **attention pooling**, its output is order-independent [14].
 
 Because every node repeats exactly the same computation with weight sharing, the overall layer obeys
 
-  H′ = f<sub>layer</sub>(P H) = P f<sub>layer</sub>(H).
+$H' = f_{\text{layer}}(PH) = P f_{\text{layer}}(H)$.
 
 Stacking layers preserves that property, hence the entire network is permutation equivariant by design [18].
 
@@ -85,7 +81,7 @@ Stacking layers preserves that property, hence the entire network is permutation
 
 To predict a global scalar (say, total energy) we add a readout  
 
- y = READOUT { h<sub>v</sub> : v ∈ V }  
+$y = \text{READOUT} \{ h_v : v \in V \}$  
 
 with another permutation-invariant function — usually a simple sum or mean.  
 That turns equivariance (node-wise) into **invariance** (graph-wise).
@@ -94,17 +90,17 @@ That turns equivariance (node-wise) into **invariance** (graph-wise).
 
 ## 5. Concrete example
 
-Take three particles in 1-D with positions x = [1, 4, 7].  
-A GNN predicts accelerations a = [0.2, −0.3, 0.1].
+Take three particles in 1-D with positions $x = [1, 4, 7]$.  
+A GNN predicts accelerations $a = [0.2, -0.3, 0.1]$.
 
-Now apply permutation P = (1 3) that swaps the first and third particle:
+Now apply permutation $P = (1 \ 3)$ that swaps the first and third particle:
 
-• Input becomes x̃ = [7, 4, 1]  
-• GNN outputs ã = [0.1, −0.3, 0.2] = P a
+• Input becomes $\tilde{x} = [7, 4, 1]$  
+• GNN outputs $\tilde{a} = [0.1, -0.3, 0.2] = Pa$
 
 Graph-level **kinetic energy** estimate  
-E = ½ Σ m v²  
-is identical whether computed on (x,a) or (x̃,ã) → invariance.
+$E = \frac{1}{2} \sum m v^2$  
+is identical whether computed on $(x,a)$ or $(\tilde{x},\tilde{a})$ → invariance.
 
 ---
 
@@ -118,9 +114,9 @@ If everyone swaps seats (a permutation), the driver’s count stays the same, bu
 
 ## 7. Why physicists love these symmetries
 
-1. **Data efficiency** – the network need not “re-learn” that p₁ and p₂ are interchangeable; the architecture encodes it [11].  
-2. **Generalisation** – models trained on 1 000-particle systems can run on 10 000-particle systems because counting order is irrelevant.  
-3. **Faithfulness to laws** – most conservation laws are *label-free*. Encoding symmetry reduces the risk of unphysical behaviour.
+1.  **Data efficiency** – the network need not “re-learn” that $p_1$ and $p_2$ are interchangeable; the architecture encodes it [11].  
+2.  **Generalisation** – models trained on 1 000-particle systems can run on 10 000-particle systems because counting order is irrelevant.  
+3.  **Faithfulness to laws** – most conservation laws are *label-free*. Encoding symmetry reduces the risk of unphysical behaviour.
 
 ---
 
@@ -138,7 +134,7 @@ If any of these fail, revisit your aggregation or remember to **batch sort**.
 
 ## 9. Beyond permutations: the road ahead
 
-• **SE(3)-equivariance** — rotations & translations in 3-D molecular systems [17].  
+• **$SE(3)$-equivariance** — rotations & translations in 3-D molecular systems [17].  
 • **Gauge equivariance** — fields on meshes.  
 • We will encounter these richer symmetry groups when building force-fields and turbulence models later in the course.
 
@@ -149,20 +145,18 @@ If any of these fail, revisit your aggregation or remember to **batch sort**.
 Permutation invariance/equivariance is the **bedrock symmetry** for particle GNNs.  
 By building it into the architecture we:
 
-* eliminate spurious dependence on arbitrary ordering,  
-* gain enormous data-efficiency, and  
-* align the network with fundamental physics.
+*   eliminate spurious dependence on arbitrary ordering,  
+*   gain enormous data-efficiency, and  
+*   align the network with fundamental physics.
 
 In the next lesson we will see how message passing turns this symmetry plus local interactions into a full-blown **relational inductive bias**.
 
 ---
 
-## References
-
-[3] Translation Invariance & Equivariance in Convolutional Neural Networks – Paperspace Blog  
-[11] *Permutation invariance, in the context…* – arXiv:2403.17410v2  
-[12] *On permutation-invariant neural networks* – arXiv  
-[14] *The Graph Neural Network Model* – McGill GRL book chapter  
-[17] *Approximately Equivariant Graph Networks* – NeurIPS 2023  
-[18] *Why is the output of my graph neural network not permutation equivariant?* – AI StackExchange  
-[21] Graph Attention Networks – Velickovic et al.
+[3]: https://blog.paperspace.com/pooling-and-translation-invariance-in-convolutional-neural-networks/
+[11]: https://arxiv.org/html/2403.17410v2#:~:text=Permutation%20invariance%2C%20in%20the%20context,of%20the%20set%20are%20arranged.
+[12]: https://arxiv.org/html/2403.17410v2
+[14]: https://www.cs.mcgill.ca/~wlh/grl_book/files/GRL_Book-Chapter_5-GNNs.pdf
+[17]: https://proceedings.neurips.cc/paper_files/paper/2023/file/6cde6435e111671b04f4574006cf3c47-Paper-Conference.pdf
+[18]: https://ai.stackexchange.com/questions/40931/why-is-the-output-of-my-graph-neural-network-not-permutation-equivariant
+[21]: https://www.baeldung.com/cs/graph-attention-networks

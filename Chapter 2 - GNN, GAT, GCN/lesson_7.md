@@ -19,41 +19,41 @@ Optimal routing clearly needs all three pieces.
 
 ---
 
-## 2. Node features \( \mathbf{x}_v \)
+## 2. Node features $\mathbf{x}_v$
 
 | Domain                    | Typical node attributes                           |
 |---------------------------|---------------------------------------------------|
 | Social network            | age, interests, #followers                        |
 | Molecule                  | atom type, charge, 3-D coordinates                |
-| Lagrangian fluid sim (SPH)| position \((x,y,z)\), velocity \((v_x,v_y,v_z)\), mass, phase flag |
+| Lagrangian fluid sim (SPH)| position $(x,y,z)$, velocity $(v_x,v_y,v_z)$, mass, phase flag |
 
 ### 2.1 Mathematical view  
 All node attributes are stacked row-wise in a matrix  
 
-\[
+$$
 \mathbf{X}\in\mathbb{R}^{N \times D_{\text{node}}}
-\]
+$$
 
-where \(N\) = #nodes and \(D_{\text{node}}\) = feature dimension [22].
+where $N$ = #nodes and $D_{\text{node}}$ = feature dimension [22].
 
 ### 2.2 Good practice check-list  
 1. **Physical units** – keep them explicit or normalised consistently.  
 2. **Categoricals** – use one-hot or learned embedding.  
-3. **Scale invariance** – velocities of order 10⁴ handle differently from positions of order 10⁻².
+3. **Scale invariance** – velocities of order $10^4$ handle differently from positions of order $10^{-2}$.
 
 ---
 
-## 3. Edge features \( \mathbf{e}_{ij} \)
+## 3. Edge features $\mathbf{e}_{ij}$
 
 Edges carry the semantics of interactions.
 
 ### 3.1 Geometry first  
-For particle \(i\) and neighbour \(j\)
+For particle $i$ and neighbour $j$
 
-\[
+$$
 \Delta\mathbf{x}_{ij} = \mathbf{x}_j - \mathbf{x}_i,\qquad  
 d_{ij}= \lVert \Delta\mathbf{x}_{ij}\rVert_2
-\]
+$$
 
 These two numbers alone supply direction **and** magnitude of the pairwise relation [45].
 
@@ -64,31 +64,31 @@ These two numbers alone supply direction **and** magnitude of the pairwise relat
 
 Edge attributes are stored in  
 
-\[
+$$
 \mathbf{E}\in\mathbb{R}^{|\mathcal{E}| \times D_{\text{edge}}}
-\]
+$$
 
-where \(|\mathcal{E}|\) is #edges.
+where $|\mathcal{E}|$ is #edges.
 
 > **Tip (stability).**  
 > If distances vary across orders of magnitude, feed the _normalised_ value  
-> \( \hat d_{ij}=d_{ij}/r_{\text{cutoff}} \) to avoid vanishing gradients.
+> $\hat d_{ij}=d_{ij}/r_{\text{cutoff}}$ to avoid vanishing gradients.
 
 ---
 
-## 4. Graph-level features \( \mathbf{g} \)
+## 4. Graph-level features $\mathbf{g}$
 
 Sometimes the entire graph has a label: total energy, toxicity, weather alert level…
 We obtain a single embedding via a **readout**:
 
-\[
+$$
 \mathbf{h}_G = \text{READOUT}\Big(\{\mathbf{h}_v^{(L)}\}_{v\in V}\Big)
-\]
+$$
 
 Common readouts: **sum, mean, max pooling, attention pooling** [22].
 
 For regression you may append an MLP  
-\( \hat y = \text{MLP}(\mathbf{h}_G) \).
+$\hat y = \text{MLP}(\mathbf{h}_G)$.
 
 ---
 
@@ -160,9 +160,7 @@ compact, data-efficient simulator.
 
 ---
 
-## References
-
-1. Graph Neural Network: In a Nutshell&nbsp;[22]  
-2. Graph Neural Networks – Comprehensive Guide&nbsp;[15]  
-3. Exploiting Edge Features in Graph Neural Networks&nbsp;[45]  
-4. Lecture 11: Graph Neural Networks (inductive bias)&nbsp;[32]
+[15]: https://viso.ai/deep-learning/graph-neural-networks/
+[22]: https://karthick.ai/blog/2024/Graph-Neural-Network/
+[32]: https://jduarte.physics.ucsd.edu/phys139_239/lectures/11_GNNs.pdf
+[45]: http://proceedings.mlr.press/v129/yang20a/yang20a.pdf

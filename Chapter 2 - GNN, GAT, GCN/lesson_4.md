@@ -17,15 +17,15 @@ That is exactly the setting of the Lagrangian picture.
 ## 2.  A 60-second Primer on SPH  
 
 In SPH the fluid is represented by  _N_  particles.  
-Key idea: physical fields are reconstructed from neighbours by a smoothing kernel  \(W\).
+Key idea: physical fields are reconstructed from neighbours by a smoothing kernel $W$.
 
-\[
+$$
 \rho_i \;=\; \sum_{j} m_j\,W\bigl(\|\,\mathbf x_i-\mathbf x_j\|,\,h\bigr)
-\]
+$$
 
-* \( \rho_i \) – density at particle _i_  
-* \( m_j \) – neighbour’s mass  
-* \( h \) – smoothing length (the **connectivity radius**)  
+* $ \rho_i $ – density at particle _i_  
+* $ m_j $ – neighbour’s mass  
+* $ h $ – smoothing length (the **connectivity radius**)  
 
 All other forces (pressure, viscosity, surface tension …) are built from the same “sum‐over-neighbours” template [23].
 
@@ -48,19 +48,19 @@ Efficient spatial hashing or k-d trees are therefore as important as the neural 
 
 ### 4.1  Node features  
 
-* Position \( \mathbf x_i \)  
-* Velocity \( \mathbf v_i \)  
-* Mass \( m_i \)  
+* Position $ \mathbf x_i $  
+* Velocity $ \mathbf v_i $  
+* Mass $ m_i $  
 * Type flag (fluid / boundary / rigid) → one-hot encoding  
 
 ### 4.2  Edge features  
 
-For each edge \( (i,j) \):
+For each edge $ (i,j) $:
 
-\[
+$$
 \mathbf e_{ij}=\bigl[\, \mathbf r_{ij},\;\|\mathbf r_{ij}\|\bigr], 
 \qquad \mathbf r_{ij} = \mathbf x_j-\mathbf x_i
-\]
+$$
 
 Optional: pre-compute kernel weights or boundary normals.
 
@@ -68,7 +68,7 @@ Optional: pre-compute kernel weights or boundary normals.
 
 A generic message-passing layer can be written as  
 
-\[
+$$
 \mathbf h_i^{(k+1)}
 \;=\;
 \phi\!\Bigl(
@@ -76,10 +76,10 @@ A generic message-passing layer can be written as
 \sum_{j\in\mathcal N(i)} 
 \psi\bigl(\mathbf h_i^{(k)},\mathbf h_j^{(k)},\mathbf e_{ij}\bigr)
 \Bigr)
-\]
+$$
 
 Compare this with the SPH summation formula above – structurally identical!  
-The neural networks \( \psi \) and \( \phi \) simply learn **how** to weight and mix the neighbour information rather than using a hand-crafted kernel [25].
+The neural networks $ \psi $ and $ \phi $ simply learn **how** to weight and mix the neighbour information rather than using a hand-crafted kernel [25].
 
 ---
 
@@ -99,7 +99,7 @@ Replace “gossip” with “force messages” and you have an SPH-to-GNN mappin
 
 | Goal | Traditional SPH | SPH → GNN surrogate |
 |------|-----------------|---------------------|
-| **Speed** | CPU/GPU heavy; Δt limited by stability | 10-100× faster roll-outs reported [5, 24] |
+| **Speed** | CPU/GPU heavy; Δt limited by stability | 10-100× faster roll-outs reported [5], [24] |
 | **Learning effects** (e.g. turbulence) | Needs expensive sub-grid models | GNN learns them from data |
 | **Portability** | Desktop/cluster | Real-time on mobile [5] |
 
@@ -109,16 +109,14 @@ The GNN does **not** replace physics; it *approximates* the expensive force eval
 
 ## 7.  Putting It Together – Mini-Pipeline Example  
 
-```text
-1.  Simulation time-step  t
-2.  Build neighbour list  →  edge index list
+1.  Simulation time-step $t$
+2.  Build neighbour list → edge index list
 3.  Assemble node & edge feature tensors
-4.  GNN forward pass  →  predict accelerations  â_i
-5.  Symplectic Euler update
-      v_{i}^{t+1} = v_{i}^{t} + Δt·â_i
-      x_{i}^{t+1} = x_{i}^{t} + Δt·v_{i}^{t+1}
+4.  GNN forward pass → predict accelerations $ \hat{\mathbf{a}}_i $
+5.  Symplectic Euler update:
+    *   $ \mathbf{v}_{i}^{t+1} = \mathbf{v}_{i}^{t} + \Delta t \cdot \hat{\mathbf{a}}_i $
+    *   $ \mathbf{x}_{i}^{t+1} = \mathbf{x}_{i}^{t} + \Delta t \cdot \mathbf{v}_{i}^{t+1} $
 6.  Repeat
-```
 
 Because step 2 dominates for large particle counts, spatial data-structures are critical research territory [24].
 
@@ -127,7 +125,7 @@ Because step 2 dominates for large particle counts, spatial data-structures are 
 ## 8.  Common Pitfalls & Practical Tips  
 
 * **Graph size explosion** – keep the connectivity radius as small as physical fidelity allows.  
-* **Edge feature scale** – normalise distances by \(h\) so the network does not have to learn absolute units.  
+* **Edge feature scale** – normalise distances by $h$ so the network does not have to learn absolute units.  
 * **Boundary handling** – treat walls as static nodes with special type‐embedding; include normal vectors in edge features.  
 * **Validation** – monitor conserved quantities (mass, momentum) during roll-outs to detect drift early [30].
 
@@ -146,11 +144,9 @@ In the next lessons we will dissect the **message-passing machinery** itself and
 
 ---
 
-## 10.  Clickable Sources  
-
-1. [5](https://community.arm.com/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/physics-simulation-graph-neural-networks-targeting-mobile)  
-2. [22](https://karthick.ai/blog/2024/Graph-Neural-Network/)  
-3. [23](https://arxiv.org/html/2402.06275v1)  
-4. [24](https://www.epcc.ed.ac.uk/whats-happening/articles/accelerating-smoothed-particle-hydrodynamics-graph-neural-networks)  
-5. [25](https://www.researchgate.net/publication/358604218_Graph_neural_network-accelerated_Lagrangian_fluid_simulation)  
-6. [30](https://arxiv.org/html/2504.13768v1)
+[5]: https://community.arm.com/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/physics-simulation-graph-neural-networks-targeting-mobile
+[22]: https://karthick.ai/blog/2024/Graph-Neural-Network/
+[23]: https://arxiv.org/html/2402.06275v1
+[24]: https://www.epcc.ed.ac.uk/whats-happening/articles/accelerating-smoothed-particle-hydrodynamics-graph-neural-networks
+[25]: https://www.researchgate.net/publication/358604218_Graph_neural_network-accelerated_Lagrangian_fluid_simulation
+[30]: https://arxiv.org/html/2504.13768v1
