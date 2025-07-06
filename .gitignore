@@ -1,2 +1,4 @@
 *.ini
 Chapter 1 - Foundational 2D Fluid Simulation/data/
+*\data
+*\__pycache__
