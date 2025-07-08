@@ -1,5 +1,12 @@
 from matplotlib import pyplot as plt
-from sklearn.metrics import ConfusionMatrixDisplay, classification_report, confusion_matrix
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    classification_report,
+    confusion_matrix,
+    mean_absolute_error,
+    r2_score
+)
+
 import torch
 import torch.nn as nn
 from torch_geometric.nn import GINConv, global_add_pool
@@ -43,7 +50,7 @@ class GIN(nn.Module):
                     train_eps=True,
                 )
             )
-        self.classifier = nn.Linear(hidden_channels[-1], output_channels)
+        self.head = nn.Linear(hidden_channels[-1], output_channels)
 
     def make_mlp(
         self,
@@ -60,16 +67,17 @@ class GIN(nn.Module):
         layers += [nn.ReLU(), nn.Linear(hidden_dim, out_dim)]
         return nn.Sequential(*layers)
 
-    def forward(self, data: Data) -> torch.Tensor:
+    def forward(self, data: Data, regression: bool = False) -> torch.Tensor:
         x, edge_index, batch = data.x, data.edge_index, data.batch
-        for layer in self.layers[:-1]:
+        for layer in self.layers:
             x = layer(x, edge_index)
             x = F.relu(x)
             x = F.dropout(x, p=self.dropout_rate, training=self.training)
         x = global_add_pool(x, batch)
-        x = self.classifier(x)
-        return x
-    
+
+        return self.head(x)
+
+
 def train(
     model: GIN, train_loader: DataLoader, val_loader: DataLoader, hyperparameters: dict
 ) -> tuple[list[float], list[float]]:
@@ -100,28 +108,40 @@ def train(
     for epoch in tqdm(range(hyperparameters["epochs"])):
         model.train()
         train_loss_sum, n_graphs = 0.0, 0
-        for train_batch in train_loader: 
+        for train_batch in train_loader:
             optimizer.zero_grad()
             out = model(train_batch)
-            train_loss = F.cross_entropy(out, train_batch.y)
+            if hyperparameters["head_type"] == "regression":
+                prediction = out.squeeze()
+                target = train_batch.y[:, hyperparameters["target_property_index"]].float()
+                train_loss = F.mse_loss(prediction, target)
+            else:
+                train_loss = F.cross_entropy(out, train_batch.y)
             train_loss.backward()
             optimizer.step()
-            train_loss_sum += train_loss.item() * len(train_batch)   # weight by size
+            train_loss_sum += train_loss.item() * len(train_batch)  # weight by size
             n_graphs += len(train_batch)
 
         train_losses.append(train_loss_sum / n_graphs)
 
         model.eval()
-        epoch_val_losses = []
+        val_loss_sum, n_graphs = 0.0, 0
         for val_batch in val_loader:
             with torch.no_grad():
                 out = model(val_batch)
-                val_loss = F.cross_entropy(out, val_batch.y)
-                epoch_val_losses.append(val_loss.item())
+                if hyperparameters["head_type"] == "regression":
+                    prediction = out.squeeze()
+                    target = val_batch.y[:, hyperparameters["target_property_index"]].float()
+                    val_loss = F.mse_loss(prediction, target)
+                else:
+                    val_loss = F.cross_entropy(out, val_batch.y)
+                
+                val_loss_sum += val_loss.item() * len(val_batch)  # weight by size
+                n_graphs += len(val_batch)
 
-        val_loss = torch.tensor(epoch_val_losses).mean() # TODO Weighted average if batches are of different sizes
-        if val_loss.item() < best_val_loss:
-            best_val_loss = val_loss.item()
+        val_loss = val_loss_sum / n_graphs
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
             best_model_state = model.state_dict()
             patience_counter = 0
         else:
@@ -130,10 +150,10 @@ def train(
                 print(f"Early stopping at epoch {epoch}")
                 break
 
-        val_losses.append(val_loss.item())
+        val_losses.append(val_loss)
         if epoch % hyperparameters["log_interval"] == 0:
             print(
-                f"Epoch: {epoch}, Train Loss: {train_loss.item()}, Val Loss: {val_loss.item()}"
+                f"Epoch: {epoch}, Train Loss: {train_loss.item()}, Val Loss: {val_loss}"
             )
 
     model.load_state_dict(best_model_state)
@@ -141,7 +161,7 @@ def train(
     return train_losses, val_losses
 
 
-def evaluate(model: GIN, test_loader: DataLoader):
+def evaluate_classification(model: GIN, test_loader: DataLoader):
     model.eval()
     outs, labels = [], []
     for test_batch in test_loader:
@@ -162,21 +182,64 @@ def evaluate(model: GIN, test_loader: DataLoader):
     disp.plot(cmap="Blues")
     plt.show()
 
+
+def evaluate_regression(model: GIN, test_loader: DataLoader, hyperparameters: dict):
+    model.eval()
+    outs, labels = [], []
+
+    for test_batch in test_loader:
+        with torch.no_grad():
+            out: torch.Tensor = model(test_batch)  # shape: [batch_size, 1]
+            outs.append(out.view(-1))              # flatten to [batch_size]
+            labels.append(test_batch.y[:, hyperparameters["target_property_index"]])
+
+    # Concatenate predictions and labels
+    preds = torch.cat(outs, dim=0).cpu().numpy()
+    targets = torch.cat(labels, dim=0).cpu().numpy()
+
+    # Compute regression metrics
+    mae = mean_absolute_error(targets, preds)
+    r2 = r2_score(targets, preds)
+
+    print(f"Regression Evaluation:\nMAE: {mae:.4f}\nR² Score: {r2:.4f}")
+
+
+def load_dataset(dataset_name: str, device: str) -> tuple[QM9 | TUDataset, list[Data]]:
+    if dataset_name == "QM9":
+        dataset = QM9(root="data/QM9")
+        print(f"QM9: {len(dataset)} molecules")
+
+    elif dataset_name == "MUTAG":
+        dataset = TUDataset(root="data", name="MUTAG")
+        print(f"MUTAG: {len(dataset)} graphs")
+
+    else:
+        raise ValueError(f"Unknown dataset: {dataset_name}")
+
+    dataset_list = [data.to(device) for data in dataset]
+    return dataset, dataset_list
+
+
 def main(hyperparameters: dict):
 
-    mutag_dataset = TUDataset(root='data', name='MUTAG')
-    mutag_dataset_list = [data.to(hyperparameters["device"]) for data in mutag_dataset]
+    dataset, dataset_list = load_dataset(
+        hyperparameters["dataset"], hyperparameters["device"]
+    )
 
     model = GIN(
-        in_channels=mutag_dataset[0].num_features,
+        in_channels=dataset[0].num_features,
         hidden_channels=hyperparameters["layers"],
-        output_channels=mutag_dataset.num_classes,
+        output_channels=(
+            1 if hyperparameters["head_type"] == "regression" else dataset.num_classes
+        ),
         dropout_rate=hyperparameters["dropout"],
     )
     model = model.to(hyperparameters["device"])
-    
-    train_set, val_set, test_set = random_split(mutag_dataset_list, [150, 19, 19])
-    train_loader = DataLoader(train_set, batch_size=hyperparameters["batch_size"], shuffle=True)
+
+    train_set, val_set, test_set = random_split(dataset_list, hyperparameters["split"])
+    train_loader = DataLoader(
+        train_set, batch_size=hyperparameters["batch_size"], shuffle=True
+    )
     val_loader = DataLoader(val_set, batch_size=len(val_set), shuffle=False)
     test_loader = DataLoader(test_set, batch_size=len(test_set), shuffle=False)
 
@@ -184,6 +247,7 @@ def main(hyperparameters: dict):
 
     plot_losses(train_losses, val_losses)
 
-    evaluate(model, test_loader)
-
-    
+    if hyperparameters["head_type"] == "classification":
+        evaluate_classification(model, test_loader)
+    else:
+        evaluate_regression(model, test_loader, hyperparameters)
