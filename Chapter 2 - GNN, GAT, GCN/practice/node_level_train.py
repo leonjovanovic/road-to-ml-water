@@ -194,7 +194,8 @@ def plot_losses(train_losses: list[float], val_losses: list[float]):
 
 def evaluate(model: GNN, data: Data):
     model.eval()
-    out: Tensor = model(data)
+    with torch.no_grad():
+        out: Tensor = model(data)
 
     predicted_classes = out.argmax(dim=1)[data.test_mask].cpu().numpy()
     labels = data.y[data.test_mask].cpu().numpy()
